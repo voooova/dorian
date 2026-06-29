@@ -173,6 +173,17 @@
   .cl-act{margin:2px 0 4px;font-size:1.05rem;font-weight:800;color:var(--gold-soft)}
   .cl-act span{font-weight:400;font-style:italic;color:var(--ink-soft);font-size:.92rem}
   .cl-text{font-family:Georgia,serif;font-size:1.3rem;line-height:1.7;color:var(--ink);margin:auto 0}
+  /* КАРТА КАРТОЧЕК */
+  .chain{display:flex;flex-direction:column;padding:4px 0 10px}
+  .chain .grp{margin:16px 0 8px;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
+  .chain .lnk{height:12px;width:2px;background:var(--line);margin-left:31px}
+  .node{display:flex;gap:11px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 13px}
+  .node:active{background:var(--surface2)}
+  .node .n{flex:0 0 16px;font-size:.7rem;color:var(--muted);text-align:right}
+  .node .e{font-size:1.45rem;flex:0 0 auto;width:26px;text-align:center}
+  .node .tx2{min-width:0}
+  .node .tx2 b{display:block;font-family:Georgia,serif;font-size:1.05rem;color:var(--gold-soft);line-height:1.2}
+  .node .tx2 span{font-size:.8rem;color:var(--ink-soft)}
   .gap{display:inline-block;min-width:54px;border-bottom:2px solid var(--gold);color:transparent;text-align:center;cursor:pointer;border-radius:3px}
   .gap.open{color:var(--ok);border-bottom-color:var(--ok)}
   .cl-actions{display:flex;gap:10px;padding:10px 0 0}
@@ -203,6 +214,7 @@
 
   <div class="menu">
     <button class="tile" onclick="startCards()"><span class="ic">🃏</span><span class="tx"><b>Карточки</b><span>лицо — ассоциация, оборот — текст + разбор</span></span><span class="go">›</span></button>
+    <button class="tile" onclick="startList()"><span class="ic">🗺</span><span class="tx"><b>Карта карточек</b><span>весь список ассоциаций — цепочкой, на ладони</span></span><span class="go">›</span></button>
     <button class="tile" onclick="startQuiz()"><span class="ic">🎯</span><span class="tx"><b>Экзамен</b><span>откуда кусок, о чём, что дальше, эмоция, ЮБ</span></span><span class="go">›</span></button>
     <button class="tile" onclick="startRecall()"><span class="ic">✍️</span><span class="tx"><b>Наизусть</b><span>подсказка → напиши/скажи текст, проверю слово в слово</span></span><span class="go">›</span></button>
     <button class="tile" onclick="startCloze()"><span class="ic">▢</span><span class="tx"><b>Пропуски</b><span>фраза с дырками на ключевых словах</span></span><span class="go">›</span></button>
@@ -352,6 +364,17 @@
     <button onclick="scPrev()">‹ назад</button>
     <button onclick="scNext()">дальше ›</button>
   </div>
+</section>
+
+<!-- ░░░ LIST (карта карточек) ░░░ -->
+<section id="list" class="screen">
+  <div class="top">
+    <button class="back" onclick="show('home')">‹</button>
+    <h2>Карта карточек</h2>
+    <span class="counter" id="list-count"></span>
+  </div>
+  <div id="list-body"></div>
+  <p class="hint">Цепочка ассоциаций по порядку. Тапни любую — откроется карточкой.</p>
 </section>
 
 <!-- ░░░ WORDS ░░░ -->
@@ -781,6 +804,28 @@ function finishCards(){
     '<br><button class="reset" onclick="show(\'home\')">домой</button></div>';
   document.getElementById("back").innerHTML="";
   updHome();
+}
+
+/* ——— КАРТА КАРТОЧЕК ——— */
+function startList(){show("list");renderList()}
+function renderList(){
+  const idx=deckIdx();
+  document.getElementById("list-count").textContent=idx.length+" шт";
+  let html='<div class="chain">',lastAct=0,localN=0;
+  idx.forEach((i,pos)=>{
+    const c=DECK[i];
+    if(c.act!==lastAct){lastAct=c.act;localN=0;html+='<div class="grp">Отрывок '+rom(c.act)+(c.act==1?" · О красоте и молодости":c.act==2?" · Желание":" · Перемена")+'</div>';}
+    else{html+='<div class="lnk"></div>';}
+    localN++;
+    html+='<div class="node" onclick="openCard('+i+')"><span class="n">'+localN+'</span><span class="e">'+c.em+'</span><span class="tx2"><b>'+c.assoc+'</b><span>я '+(c.verb?c.verb.toLowerCase():'')+'</span></span></div>';
+  });
+  html+='</div>';
+  document.getElementById("list-body").innerHTML=html;
+}
+function openCard(i){
+  const idx=deckIdx();queue=idx.slice();qpos=idx.indexOf(i);if(qpos<0){queue=[i];qpos=0;}
+  document.getElementById("cards-title").textContent=curSeg==="all"?"Карточки · все":"Карточки · отрывок "+rom(curSeg);
+  show("cards");renderCard();
 }
 
 /* ——— АНАЛИЗ СЦЕНЫ ——— */
