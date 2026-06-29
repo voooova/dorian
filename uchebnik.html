@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Дориан Грей — полный учебник чтения</title>
+<style>
+  :root{
+    --bg:#14100e;
+    --bg2:#1d1714;
+    --surface:#221b17;
+    --surface2:#2a211c;
+    --ink:#f2e8db;
+    --ink-soft:#cbbca9;
+    --muted:#8d7d6c;
+    --gold:#cda35c;
+    --gold-soft:#e3c389;
+    --line:#3a2e26;
+
+    /* слои разбора */
+    --c-borz:#7fb0c8;      /* Борзунов — сталь */
+    --c-borz-bg:#16252c;
+    --c-yb:#e0b35e;        /* Юлия Борисовна — золото */
+    --c-yb-bg:#2c2210;
+    --c-edit:#c98a78;      /* правка текста — терракот */
+    --c-edit-bg:#2a1814;
+    --c-act:#88c0a0;       /* актёрский разбор — мята */
+    --c-act-bg:#16241d;
+
+    /* говорящий */
+    --sp-henry:#cda35c;    /* Лорд Генри */
+    --sp-dorian:#9aa7cf;   /* Дориан */
+    --sp-bezil:#b58fb0;    /* Бэзил */
+    --sp-author:#7d7164;   /* автор */
+
+    --r:14px;
+    --maxw:680px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:radial-gradient(120% 60% at 50% 0%, #241a14 0%, var(--bg) 60%) fixed;
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    line-height:1.6;padding-bottom:80px;
+  }
+  /* прогресс скролла */
+  #bar{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-soft));z-index:50;transition:width .1s}
+  /* шапка-навигация */
+  header.nav{position:sticky;top:0;z-index:40;backdrop-filter:blur(10px);background:rgba(20,16,14,.82);border-bottom:1px solid var(--line)}
+  .nav-inner{max-width:var(--maxw);margin:0 auto;display:flex;gap:6px;padding:10px 14px;align-items:center}
+  .nav-title{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-right:auto}
+  .nav a{flex:0 0 auto;font-size:.8rem;color:var(--gold-soft);text-decoration:none;border:1px solid var(--line);
+    padding:5px 11px;border-radius:999px;background:var(--surface)}
+  .nav a:active{background:var(--surface2)}
+
+  main{max-width:var(--maxw);margin:0 auto;padding:0 16px}
+
+  /* обложка */
+  .cover{padding:54px 6px 30px;text-align:center}
+  .cover .kicker{font-size:.7rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);opacity:.85}
+  .cover h1{font-family:Georgia,"Times New Roman",serif;font-weight:600;font-size:2.5rem;line-height:1.1;margin:.3em 0 .1em}
+  .cover .sub{color:var(--ink-soft);font-style:italic;font-size:1.02rem}
+  .cover .meta{margin-top:18px;color:var(--muted);font-size:.82rem;line-height:1.7}
+
+  /* легенда */
+  .legend{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 16px 6px;margin:18px 0 8px}
+  .legend h3{margin:0 0 10px;font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .legend .row{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;font-size:.9rem;color:var(--ink-soft)}
+  .chip{flex:0 0 auto;font-size:.7rem;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:7px;text-transform:uppercase}
+  .chip.b{color:var(--c-borz);background:var(--c-borz-bg)}
+  .chip.y{color:var(--c-yb);background:var(--c-yb-bg)}
+  .chip.e{color:var(--c-edit);background:var(--c-edit-bg)}
+  .chip.a{color:var(--c-act);background:var(--c-act-bg)}
+
+  /* принципы */
+  .principles{background:linear-gradient(160deg,var(--surface2),var(--surface));border:1px solid var(--line);
+    border-radius:var(--r);padding:18px 18px 6px;margin:10px 0 26px}
+  .principles h3{margin:0 0 12px;font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:700}
+  .principles ol{margin:0;padding-left:20px}
+  .principles li{margin-bottom:11px;color:var(--ink-soft);font-size:.92rem}
+  .principles b{color:var(--ink)}
+
+  /* краткое содержание отрывка */
+  .synopsis{background:var(--bg2);border:1px dashed var(--gold);border-radius:var(--r);padding:16px 18px;margin:4px 0 8px}
+  .synopsis h3{margin:0 0 8px;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
+  .synopsis p{margin:0;color:var(--ink-soft);font-size:.95rem;line-height:1.6}
+  .synopsis b{color:var(--ink)}
+
+  /* разделитель отрывка */
+  .act{padding:46px 6px 8px;text-align:center;scroll-margin-top:60px}
+  .act .num{font-family:Georgia,serif;font-size:3.4rem;color:var(--gold);opacity:.28;line-height:1}
+  .act .label{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+  .act h2{font-family:Georgia,serif;font-weight:600;font-size:1.9rem;margin:.15em 0 .25em}
+  .act .gist{color:var(--ink-soft);font-size:.95rem;font-style:italic;max-width:520px;margin:0 auto}
+  .rule{height:1px;background:linear-gradient(90deg,transparent,var(--line),transparent);margin:22px 0}
+
+  /* блок текста */
+  .seg{margin:18px 0;padding:16px 16px 16px 18px;background:var(--surface);border:1px solid var(--line);
+    border-left:3px solid var(--sp-author);border-radius:12px}
+  .seg.henry{border-left-color:var(--sp-henry)}
+  .seg.dorian{border-left-color:var(--sp-dorian)}
+  .seg.bezil{border-left-color:var(--sp-bezil)}
+  .seg.author{border-left-color:var(--sp-author)}
+  .who{font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+  .seg.henry .who{color:var(--sp-henry)}
+  .seg.dorian .who{color:var(--sp-dorian)}
+  .seg.bezil .who{color:var(--sp-bezil)}
+  .txt{font-family:Georgia,"Times New Roman",serif;font-size:1.28rem;line-height:1.62;color:var(--ink)}
+  .txt em{color:var(--gold-soft);font-style:italic}
+  .txt .beat{color:var(--gold);font-style:normal;font-weight:700;opacity:.9}      /* пауза-маркер ‖ */
+  .txt u{text-decoration:none;border-bottom:2px solid var(--gold);padding-bottom:1px} /* ударение */
+
+  /* слои разбора */
+  .layers{margin-top:13px;display:flex;flex-direction:column;gap:8px}
+  .lay{font-size:.9rem;line-height:1.5;border-radius:9px;padding:9px 11px 9px 12px;border-left:3px solid}
+  .lay .tag{display:inline-block;font-size:.62rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+    margin-right:7px;vertical-align:1px}
+  .lay.b{background:var(--c-borz-bg);border-color:var(--c-borz);color:#d4e7f0}
+  .lay.b .tag{color:var(--c-borz)}
+  .lay.y{background:var(--c-yb-bg);border-color:var(--c-yb);color:#f0dcb4}
+  .lay.y .tag{color:var(--c-yb)}
+  .lay.e{background:var(--c-edit-bg);border-color:var(--c-edit);color:#f0ccc0}
+  .lay.e .tag{color:var(--c-edit)}
+  .lay.a{background:var(--c-act-bg);border-color:var(--c-act);color:#c4e6d3}
+  .lay.a .tag{color:var(--c-act)}
+  .lay .tm{font-size:.7rem;color:var(--muted);font-weight:600}
+  .star{color:var(--gold)}
+
+  /* напутствие */
+  .outro{margin:40px 0 10px;padding:22px;background:linear-gradient(160deg,#2a2110,#1d1813);border:1px solid var(--gold);
+    border-radius:var(--r)}
+  .outro h3{margin:0 0 10px;color:var(--gold);font-family:Georgia,serif;font-size:1.3rem}
+  .outro p{color:var(--ink-soft);font-size:.95rem;margin:.5em 0}
+  .checklist{margin:18px 0 0;padding:18px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+  .checklist h3{margin:0 0 12px;font-size:.74rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .checklist label{display:flex;gap:10px;align-items:flex-start;margin-bottom:11px;font-size:.92rem;color:var(--ink-soft)}
+  .checklist input{margin-top:4px;accent-color:var(--gold);width:16px;height:16px;flex:0 0 auto}
+  footer{text-align:center;color:var(--muted);font-size:.75rem;padding:30px 0 10px}
+  .top{display:block;text-align:center;color:var(--gold-soft);font-size:.8rem;margin-top:24px;text-decoration:none}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+
+<header class="nav">
+  <div class="nav-inner">
+    <span class="nav-title">Дориан Грей</span>
+    <a href="#act1">I</a>
+    <a href="#act2">II</a>
+    <a href="#act3">III</a>
+  </div>
+</header>
+
+<main>
+
+  <section class="cover">
+    <div class="kicker">Оскар Уайльд · перевод М. Урнова</div>
+    <h1>Портрет<br>Дориана Грея</h1>
+    <div class="sub">партитура чтения для салона</div>
+    <div class="meta">
+      Полный текст трёх отрывков · разбор пофразно<br>
+      🎙 как читает Борзунов · 🎓 урок Юлии Борисовны<br>
+      ✎ правки текста · 🎭 актёрский разбор (школа ГИТИС)<br>
+      <span style="opacity:.7">текст — М. Урнов · звучание — С. Борзунов</span>
+    </div>
+  </section>
+
+  <section class="legend">
+    <h3>Обозначения</h3>
+    <div class="row"><span class="chip b">🎙 Борзунов</span><span>как звучит у эталонного чтеца — паузы, удары, темп (с таймингом записи).</span></div>
+    <div class="row"><span class="chip y">🎓 Юлия Б.</span><span>что говорила педагог на уроке — главный слой работы.</span></div>
+    <div class="row"><span class="chip e">✎ правка</span><span>как поменяли текст на занятии.</span></div>
+    <div class="row"><span class="chip a">🎭 разбор</span><span>действие, темп, ударение, резонатор — по школе.</span></div>
+    <div class="row"><span style="color:var(--gold);font-weight:700">‖</span><span>знак паузы прямо в тексте. <u>Подчёркнуто</u> — ударное слово.</span></div>
+  </section>
+
+  <section class="principles">
+    <h3>7 сквозных правил (весь урок об этом)</h3>
+    <ol>
+      <li><b>Читаешь ЗАЛУ, не партнёру.</b> Каждая большая мысль уходит через зрителей — «чтобы каждый про себя подумал».</li>
+      <li><b>Тяни конец фразы вверх.</b> «Сила фразы — в конце. Идёшь в конец — тянешь перспективу.» Последнее слово мысли — интонационно наверх.</li>
+      <li><b>Светская скрытая ирония, голубая кровь.</b> Эталон — Кирилл Альфредович: «ни хера не показывает, всё себе на уме». Чувств не видно.</li>
+      <li><b>Жёсткий текст — подавай легко, на улыбке.</b> «От этого ещё страшнее, в противовес. Будешь да-да-да — это бред.»</li>
+      <li><b>Не беги за текстом.</b> Черчилль: «Есть что сказать — не торопись, тебя будут слушать.»</li>
+      <li><b>Давай паузу, чтобы «в ухо вошло».</b> Дай людям осмыслить и пережить.</li>
+      <li><b>Главное — подтекст и искушение.</b> Не почитать под картинку, а копнуть смысл, чтобы у зрителя случился катарсис.</li>
+    </ol>
+  </section>
+
+  <!-- ════════════ ОТРЫВОК I ════════════ -->
+  <section class="act" id="act1">
+    <div class="num">I</div>
+    <div class="label">Отрывок первый</div>
+    <h2>О красоте<br>и молодости</h2>
+    <div class="gist">Лорд Генри сеет в Дориане идею: красота уйдёт — живи сейчас. Действие: <b>СОБЛАЗНЯЮ</b>.</div>
+  </section>
+  <div class="rule"></div>
+
+  <div class="synopsis">
+    <h3>Краткое содержание</h3>
+    <p>Лорд Генри просит Дориана уйти с солнца: солнце портит лицо, загар ему не к лицу, и Бэзил больше не захочет его рисовать. «Эка важность». Генри возражает: это серьёзно — <b>молодость важна, её надо ценить</b>. В мире всё расцветает и увядает; волосы и лицо состарятся. Пока есть возможность — пользуйся молодостью, потому что силы увянут, и в старости даже победы будут ощущаться хуже нынешних неудач.</p>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри</div>
+    <div class="txt">— Давайте сядем где-нибудь в тени. Вот Паркер уже несёт нам питьё. А если вы будете стоять на солнцепёке, вы <u>подурнеете</u>, и Бэзил больше не захочет вас писать. Загар будет вам не к лицу, — сказал лорд Генри. <span class="beat">‖</span></div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Это первое — зал. Вы как будто приглашаете их в свой мир.» Светски! <b>Не</b> председатель колхоза — не бытово. Все точки расставить. Оставить «сказал лорд Генри» — «иначе всё развалим».</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[0:04–0:20]</span> Лёгкая светская подача, «подурнеете» чуть выделено. После «не к лицу» — короткий вдох-пауза перед репликой Дориана.</div>
+      <div class="lay a"><span class="tag">🎭 разбор</span>Действие: ЗАЦЕПЛЯЮ. Первая шпилька — комплимент через лёгкую угрозу. Резонатор грудь+маска, тон тёмный, красивый.</div>
+    </div>
+  </div>
+
+  <div class="seg dorian">
+    <div class="who">Дориан</div>
+    <div class="txt">— Эка важность, подумаешь! — засмеялся Дориан Грей, садясь на скамью в углу сада.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Это светское общество — люди не показывают, что внутри. Представь: это Дориан и Кирилл Альфредович. Тот ни хера не показывает, всё себе на уме.» <b>Не Островский</b>, не купечество.</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[0:21]</span> Лёгкая светская отмашка, с усмешкой — Дориан ещё не задет.</div>
+      <div class="lay a"><span class="tag">🎭 разбор</span>Дориан легко, быстро — реплики Дориана вообще короче и легче, чем у Генри.</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри</div>
+    <div class="txt">— Для вас это <u>очень важно</u>, мистер Грей.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Чуть ироничнее.» Светски, чуть отстраняясь.</div>
+      <div class="lay a"><span class="tag">🎭 разбор</span>Медленнее — это начало удара. Не отступаю, тихо и уверенно.</div>
+    </div>
+  </div>
+
+  <div class="seg dorian">
+    <div class="who">Дориан</div>
+    <div class="txt">— Почему же?</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Чуть отстраниться от вопроса. Светский — и отстраняясь. Он всё сам понимает, но это такая игра.»</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри</div>
+    <div class="txt">— Да потому что вам дана <u>чудесная красота молодости</u>. А молодость — единственное богатство, которое стоит беречь.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«"Чудесная красота молодости" — одно понятие, не дроби.» После «А молодость» — запятая по мысли, лёгкая повисающая.</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[0:33–0:42]</span> «Чудесная красота молодости» слитно, тепло. Затем пауза ~1.1с перед ответом Дориана.</div>
+    </div>
+  </div>
+
+  <div class="seg dorian">
+    <div class="who">Дориан</div>
+    <div class="txt">— Я этого не думаю, лорд Генри.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Не под себя. Как будто мы разговариваем» — живой диалог, не декламация.</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри · большой монолог</div>
+    <div class="txt">— Теперь вы, конечно, этого не <u>думаете</u>. Но когда вы станете <u>безобразным стариком</u>, <span class="beat">‖</span> когда думы <u>избороздят</u> ваш лоб морщинами, а страсти своим губительным огнём <u>иссушат</u> ваши губы, вы поймёте это <u>с неумолимой ясностью</u>. <span class="beat">‖</span></div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«"Не думаете" — последнее слово наверх, тянуть перспективу.» На «безобразным стариком» дай людям прокрутить киноленту видений, картинки. На «иссушат ваши губы» — вес на «иссушат», «губы» не выделять. «Вы поймёте это» — проходно, невыделяемо; «с неумолимой ясностью» — одно понятие. «Обратного пути нет — это данность.» <span class="star">Чуть на улыбке внутри</span> (как пацану 15-ти: «конечно, помогу… но всё не так, как тебе кажется»).</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[0:46–1:04]</span> Темп втрое медленнее обычного (~0.8 слова/сек). Каждый член перечисления — отдельным мазком, лёгкие паузы между «стариком / морщинами / губы».</div>
+      <div class="lay a"><span class="tag">🎭 разбор</span>Действие: ПУГАЮ КРАСИВО. Снисходительно, не торопясь. Резонатор глубже в грудной к «иссушат».</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри</div>
+    <div class="txt">Теперь, куда бы вы ни пришли, вы всех <u>пленяете</u>. Но разве так будет <u>всегда</u>? <span class="beat">‖</span></div>
+    <div class="layers">
+      <div class="lay e"><span class="tag">✎ правка</span>Только «<b>теперь</b>», не «сейчас» — «сейчас ухо режет».</div>
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«К слову "пленяете" — идти.» А «Но разве так будет всегда?» — <b>шире, всему залу, чтобы каждый про себя подумал: как быстротечна жизнь.» Сила — в конце, тяни.</div>
+      <div class="lay a"><span class="tag">🎭 разбор</span>Риторический вопрос — ответа не ждём. Пауза 1.5с после, на грудном.</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри</div>
+    <div class="txt">Вы удивительно хороши собой, мистер Грей. Не хмурьтесь, это <u>правда</u>. <span class="beat">‖‖</span> А <u>красота</u> — один из видов гения.</div>
+    <div class="layers">
+      <div class="lay e"><span class="tag">✎ правка</span>«…мистер Грей<b>,</b> не хмурьтесь, это правда» — одна мысль, запятая после «Грей».</div>
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>Не как с ребёнком — «вы светская овчина, будьте снисходительны. Грей кокетничает, он воплощение эго; Генри не упрекает: у вас есть от чего это эго — вы божественно красивы». Улыбку в голосе и глазах — слышно в интонации. <span class="star">Перед «А красота» — ПАУЗА-интрига!</span> «Люди должны запомнить метафору и уйти с ней.» Можно с иронией. Жест психологический, не как в докладе.</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[1:16]</span> «А красота — один из видов гения» — ровно, весомо, как formula.</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри</div>
+    <div class="txt">Она ещё выше гения, ибо не требует понимания. Она — одно из великих явлений окружающего нас мира, как солнечный свет, или весна, или отражение в тёмных водах серебряного щита луны. <span class="beat">‖</span></div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Через себя. Красоту видишь — задыхаешься, осмыслять не надо (это не формула, где думаешь). Вы выдаёте карту — но сами формулируете в моменте. Сами восторгаетесь.» Образы — нерукотворно, дай увидеть.</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[1:19–1:34]</span> Образы катятся плавно, на одном дыхании; после «луны» — крупная пауза.</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри · ⭐ ключевая</div>
+    <div class="txt">Красота неоспорима. <span class="beat">‖</span> Она имеет высшее право на власть и делает царями тех, кто ею <u>обладает</u>.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Не поучительно! Это всему залу: "Красота неоспорима, господа". В паузе после — дай людям осмыслить, чтобы в ухо вошло и человек пережил.» Дальше: «Стоп, тут нельзя проскакивать. Власть — одна из ценностей, это парадокс.» «"Обладает" — слово туда» (наверх). За каждой войной стоит женщина — её красота; это влияние.</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[1:34–1:43]</span> <b>Перед «Красота неоспорима» — пауза 1.8 сек.</b> Три слова весят как три камня. После — снова пауза.</div>
+      <div class="lay a"><span class="tag">🎭 разбор</span>Разгон (длинный образ луны) → стоп → удар тремя словами.</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри</div>
+    <div class="txt">Вы улыбаетесь? <span class="beat">‖</span> О, когда вы её утратите, вы не будете улыбаться. Иные говорят, что красота — это щита земная. Быть может. Но во всяком случае она не так тщетна, как <u>мысль</u>.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«"Вы улыбаетесь" — залу. Он с Дорианом в диалоге, но через зал.» Противопоставление: «мысль» чуть сильнее. Говори «щит» чётко — «иначе подумают, что не выговорил слово».</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[1:44–1:58]</span> «Вы улыбаетесь?» — мягко, потом тёмное «О, когда вы её утратите…».</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри</div>
+    <div class="txt">Для <u>меня</u> красота — чудо из чудес. Только пустые и ограниченные люди не судят по внешности. Подлинная тайна жизни заключена в зримом, а не в сокровенном.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«"Для меня" — выделить. "Пустые и ограниченные" — одно понятие. Интонация — снисхождение, глупцы, не признавать очевидное. Мы не спорим — мы его оправдываем. Интонация подчёркивает отношение: к чему говорю и к кому.»</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри</div>
+    <div class="txt">Да, мистер Грей, боги к вам милостивы, но боги скоро отнимают то, что дают. У вас впереди <u>немного лет</u> для жизни настоящей, полной и прекрасной. Минет молодость, а с нею красота. И вот вам вдруг станет ясно, что время побед прошло… <span class="beat">‖</span> или придётся довольствоваться победами столь жалкими, что в сравнении с прошлым они вам будут казаться горше поражений.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«"Не много лет" подчеркнуть.» После «время побед прошло» — троеточие по мысли. Перед «что» паузы НЕ будет. «Пошире, не пробалтывать.»</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[2:12–2:38]</span> Длинная мысль ведётся ровно, без провалов, до «горше поражений».</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри · ⭐ подача</div>
+    <div class="txt">Каждый уходящий <u>месяц</u> приближает вас к этому тяжкому будущему. Время ревниво. Оно покушается на лилии и розы, которыми одарили вас боги. Щёки ваши пожелтеют и ввалятся, глаза потускнеют. Вы будете страдать ужасно.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span><span class="star">Здесь самое важное по подаче.</span> «Прошли годы — а теперь каждый уходящий МЕСЯЦ. Потом будет день, потом минута — время летит стремительно. <b>Нужна ирония: текст жёсткий, а говорить легко — тогда ещё страшнее. Будешь да-да-да — это бред.</b>» (как сын Дима: «как я был самонадеян в 20»). «Каждый видит своё зеркало — люди думают только о себе.»</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[2:39–2:59]</span> «Каждый уходящий месяц…» — длинная, потом короткими: «Время ревниво.» / «Глаза потускнеют.» / «Вы будете страдать ужасно.» — удары.</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри · кульминация соблазна</div>
+    <div class="txt">Так пользуйтесь же своей молодостью, пока она не ушла. Не тратьте понапрасну золотые дни, слушая нудных святош. Не пытайтесь исправлять то, что неисправимо. Не отдавайте свою жизнь невеждам, пошлякам и ничтожествам, следуя ложным идеям и нездоровым стремлениям нашей эпохи.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Пользуйтесь молодостью — это залог.»</div>
+      <div class="lay a"><span class="tag">🎭 разбор</span>Перечисление «не…/не…/не…» — нарастание, удары. Действие: ПОДТАЛКИВАЮ.</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри</div>
+    <div class="txt">Живите! <span class="beat">‖</span> Живите той чудесной жизнью, что скрыта в вас. Ничего не упускайте. Вечно ищите всё новых ощущений. <span class="beat">‖</span> Ничего не бойтесь.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«СТОП. Живите!» — отдельно, ключевое. Пауза после «ощущений». «Ничего не бойтесь — залу. Самое частое слово в Библии — "не бойся".»</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[3:20–3:33]</span> «Живите!» — возглас; второе «Живите…» тише, пауза 0.8с между ними — это смена режима, не повтор.</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри</div>
+    <div class="txt">Новый гедонизм — вот что нужно нашему поколению. И вы могли бы стать его зримым символом. Для такого, как вы, нет ничего невозможного. На <u>короткое время</u> мир принадлежит вам.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span><span class="star">«Тут будьте лукавы, уйдите в иронию.»</span> Гедонизм — противовес аскезе: «мне всё нужно — впечатления, эмоции, много и всё, а человеку это не нужно — значит, он искушает». «"На короткое время" он всё время говорит» — привет Фаусту: «остановись, мгновение».</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри</div>
+    <div class="txt">Я с первого взгляда понял, что вы себя ещё не знаете. Не знаете, чем вы могли бы быть. Многое в вас меня пленило, и я почувствовал, что должен помочь вам познать самого себя. Я думал, как было бы трагично, если бы эта жизнь пропала даром. Ведь молодость ваша пройдёт так быстро.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Всё с залом — весь этот "мистер Грей" — это весь зал.» <span class="star">ИСКУШАЙТЕ!</span> «"Если бы жизнь пропала даром" — чисто искушение: возьми от жизни всё, не ограничивай себя. Люди в зале должны подумать, что зря прожили жизнь, — а в конце перекреститься и испугаться.» Пошире.</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[3:48–4:11]</span> Доверительно, ближе к слушателю, чем прежде — переходит от проповеди к личному.</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри · образ природы</div>
+    <div class="txt">Простые полевые цветы вянут, но опять расцветают. Будущим летом ракитник в июне будет так же сверкать золотом, как сейчас. Через месяц зацветёт пурпурными звёздами ломонос, и каждый год в зелёной ночи его листьев будут загораться всё новые пурпурные звёзды. А к нам молодость <u>не возвращается</u>.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Там как двоеточие: цветы вянут — но опять расцветают, а НЕ мы. Цветок 20 раз возродится — но не человек.» Противопоставка: вянут ↔ расцветают. Перед «не возвращается» — <b>пауза</b>. <span class="tm">(ломонос — южный кустарник, разноцветные цветы-звёздочки; посмотри картинку.)</span></div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[4:11–4:35]</span> Картина природы — светло, любуясь; «А к нам молодость не возвращается» — резкий слом в тень.</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри</div>
+    <div class="txt">Слабеет пульс радости, что бьётся так сильно в двадцать лет. Дряхлеет тело, угасают чувства. Мы превращаемся в отвратительных марионеток с неотвязными воспоминаниями о тех страстях, которых мы слишком боялись, и соблазнах, которым мы не посмели уступить.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«"Слабеет пульс радости" — это ирония. В 40 даже голову не повернёшь, а в 20 — гормоны, так устроен человек.»</div>
+      <div class="lay a"><span class="tag">🎭 разбор</span>Тяжелеет, темнеет — спуск в грудной к финалу.</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри · финал I</div>
+    <div class="txt">Молодость! <span class="beat">‖</span> Молодость! <span class="beat">‖</span> В мире нет ничего ей равного.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>Перед финалом — пауза. «Отлично. Тут — музыку.»</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[4:57–5:03]</span> «Молодость! Молодость!» — пик; пауза 0.4с; «В мире нет ничего ей равного» — тихо, на выдохе. Монолог кончается не взрывом, а тишиной после взрыва.</div>
+    </div>
+  </div>
+
+  <!-- переход -->
+  <div class="seg author" style="border-left-style:dashed;background:var(--bg2)">
+    <div class="who">↓ переход I → II</div>
+    <div class="txt" style="font-size:1.05rem;font-style:italic;color:var(--ink-soft)">Перебивка · музыка · объявление: «Желание».</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>Объявлять не «Лорд Генри», а тему: <b>«О красоте и молодости» → (музыка) → «Желание» → «Перемена»</b>.</div>
+    </div>
+  </div>
+
+  <!-- ════════════ ОТРЫВОК II ════════════ -->
+  <section class="act" id="act2">
+    <div class="num">II</div>
+    <div class="label">Отрывок второй</div>
+    <h2>Желание</h2>
+    <div class="gist">Портрет готов. Дориан впервые видит свою красоту — и в ужасе от того, что она конечна. «Душу бы отдал за это».</div>
+  </section>
+  <div class="rule"></div>
+
+  <div class="synopsis">
+    <h3>Краткое содержание</h3>
+    <p>Художник заканчивает портрет: «Готово!» Генри подходит, расхваливает картину и настаивает, чтобы тот продал её ему. Бэзил отказывается — картина принадлежит Дориану. «Экий счастливец». Дориан спускается с подмостков, проходит мимо мольберта, застывает — <b>покорён собственной красотой</b>. Не слушает Бэзила, погружён в портрет; думал, что Бэзил по-дружески преувеличивает, — а оказывается, нет. И тут вспоминает слова Генри о молодости: он постареет и станет ни на что не годен. «Как это печально», — говорит вслух. «Вот бы картина старела вместо меня — <b>душу бы отдал за это!</b>»</p>
+  </div>
+
+  <div class="seg author">
+    <div class="who">Автор · бытовой зачин</div>
+    <div class="txt">Художник перестал работать. Он долго смотрел на Дориана Грея, потом так же долго на портрет, хмурясь и покусывая кончик длинной кисти.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Здесь сначала бытовой текст. Новый кусок, ничем не связанный. Вообще не спешить. Точка будет только в конце» — вся фраза на одном наблюдении.</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[0:00–0:10]</span> 10 секунд на одно предложение — это атмосфера, а не информация. Слушатель должен увидеть художника за работой раньше, чем услышит «Готово».</div>
+    </div>
+  </div>
+
+  <div class="seg bezil">
+    <div class="who">Бэзил</div>
+    <div class="txt">— Готово! — воскликнул он наконец и, нагнувшись, подписал своё имя длинными красными буквами в левом углу картины.</div>
+    <div class="layers">
+      <div class="lay e"><span class="tag">✎ правка</span>«Готово<b>!</b>» — восклицательный, не вопрос. И «нагнувшись, подписал» — слитно (а не «нагнулся» отдельно).</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[0:11–0:21]</span> «Готово!» — выдох облегчения мастера.</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри · о картине</div>
+    <div class="txt">Лорд Генри подошёл ближе, чтобы лучше рассмотреть. Несомненно, это было дивное произведение искусства, да и сходство было поразительное. — Дорогой мой Бэзил, поздравляю тебя от всей души. Я не знаю лучшего портрета во всей современной живописи. Подойдите же сюда, мистер Грей, и судите сами.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Всё шире. Как Кирилл Альфредович / Пётр Наумчик — всё время чуть подвешиваешь, будь в моменте.» «Бэзил!» — восклицательный, руки разводит, ошарашен по словесному действию. На «Подойдите же сюда» — <b>надо подойти</b> (физическое действие).</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[0:22–0:50]</span> Восхищение искреннее, но светское — без перебора.</div>
+    </div>
+  </div>
+
+  <div class="seg author">
+    <div class="who">Автор</div>
+    <div class="txt">Юноша вздрогнул, как человек, внезапно очнувшийся от сна.</div>
+    <div class="layers">
+      <div class="lay a"><span class="tag">🎭 разбор</span>Смена ритма — Дориан выходит из транса. Чуть встрепенуться голосом.</div>
+    </div>
+  </div>
+
+  <div class="seg dorian">
+    <div class="who">Дориан</div>
+    <div class="txt">— В самом деле, кончено? — спросил он, сходя с подмостков.</div>
+    <div class="layers">
+      <div class="lay a"><span class="tag">🎭 разбор</span>Тихо, ещё не понимая, что сейчас произойдёт с ним внутри.</div>
+    </div>
+  </div>
+
+  <div class="seg bezil">
+    <div class="who">Бэзил</div>
+    <div class="txt">— Да. И вы сегодня прекрасно позировали. Я вам за это бесконечно благодарен.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Это художник. Всё шире.»</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри · шутка</div>
+    <div class="txt">— За это надо благодарить меня, — вмешался лорд Генри. — Правда, мистер Грей?</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Это юмор, шутка. Всё это светское английское общество.»</div>
+    </div>
+  </div>
+
+  <div class="seg author">
+    <div class="who">Автор</div>
+    <div class="txt">Дориан, не отвечая, с рассеянным видом прошёл мимо мольберта, затем повернулся к нему лицом. При первом взгляде на портрет <span class="beat">‖</span> он невольно сделал шаг назад и вспыхнул от удовольствия. Глаза его блеснули так радостно, словно он первый раз увидел себя. Он стоял неподвижно, погружённый в созерцание. Он стоял неподвижно, смутно сознавая, что Бэзил что-то говорит ему.</div>
+    <div class="layers">
+      <div class="lay e"><span class="tag">✎ правка</span>Везде <b>Бэзил</b> (в книге «Холлуорд») — одно имя на весь вечер. С ЮБ <b>убрали</b> хвост «но не вникая в смысл его слов» и вернули повтор «Он стоял неподвижно» — два удара, состояние транса.</div>
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Как будто вы понимаете, что он ИСПУГАЛСЯ портрета» — потом контраст: испуг → восторг.</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[1:20–1:23]</span> «При первом взгляде на портрет…» — реальная пауза на многоточии, как ремарка: стоп, дай дойти.</div>
+    </div>
+  </div>
+
+  <div class="seg author">
+    <div class="who">Автор · ⭐ смычка с Отрывком I</div>
+    <div class="txt">Как откровение пришло к нему сознание своей красоты. До сих пор он как-то её не замечал. И вот появился лорд Генри, прозвучал его восторженный гимн молодости, грозное предостережение о том, что она быстротечна. Это взволновало Дориана, и сейчас, когда он смотрел на отражение своей красоты, перед ним вдруг с поразительной ясностью встало то будущее, о котором говорил лорд Генри.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span><span class="star">«Вот теперь мы связали первый и второй кусочек — этой красотой.»</span> «"О том, что она" — как одно слово.» «Это взволновало Дориана — точка опоры, потому что дальше будет другое.» Довести до «будущему» и подхватить сразу.</div>
+      <div class="lay a"><span class="tag">🎭 разбор</span>Здесь смыкается тема Отрывка I: чем Генри пугал — теперь Дориан видит на холсте.</div>
+    </div>
+  </div>
+
+  <div class="seg dorian">
+    <div class="who">Дориан · ⭐ «Да.»</div>
+    <div class="txt">Да. <span class="beat">‖</span> Наступит день, когда его лицо поблекнет и сморщится, глаза потускнеют, выцветут, стройный стан согнётся, станет безобразным. Годы унесут с собой алость губ и золото волос. Жизнь, формируя его душу, будет разрушать его тело. Он станет отталкивающе некрасив, жалок и страшен.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«"Да." — подхватить сразу, без провала.»</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[2:38–3:10]</span> «Да.» — и пауза ~1.5 сек тишины перед «Наступит день». В «Да» — принятие реальности. Перечисление увядания — нарастание по длине: каждый следующий пункт тяжелее.</div>
+      <div class="lay a"><span class="tag">🎭 разбор</span>Это то же перечисление, чем Генри пугал в I — теперь Дориан произносит это сам себе.</div>
+    </div>
+  </div>
+
+  <div class="seg author">
+    <div class="who">Автор</div>
+    <div class="txt">При этой мысли острая боль, как ножом, пронзила Дориана, и каждая жилка в нём затрепетала. Глаза потемнели, став из голубых аметистовыми, и затуманились слезами. Словно ледяная рука легла ему на сердце. <span class="beat">‖</span></div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Я должна увидеть, что у него глаза полные слёз.» «Словно ледяная рука…» — это снежная королева, его эго заледенеет. Здесь пауза.</div>
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[3:11–3:20]</span> «При этой мысли острая боль…» — 7 сек на предложение: максимальный вес в самый тяжёлый момент. «Глаза потемнели» — удар, и пауза.</div>
+    </div>
+  </div>
+
+  <div class="seg bezil">
+    <div class="who">Бэзил</div>
+    <div class="txt">— Разве портрет вам не нравится? — воскликнул наконец Бэзил, немного задетый непонятным молчанием Дориана.</div>
+    <div class="layers">
+      <div class="lay e"><span class="tag">✎ правка</span>Здесь и далее — <b>Бэзил</b> (в книге «Холлуорд»), чтобы зритель не запутался: имя одного художника весь вечер.</div>
+    </div>
+  </div>
+
+  <div class="seg henry">
+    <div class="who">Лорд Генри · Бэзил · Дориан</div>
+    <div class="txt">— Ну конечно, нравится, — ответил за него лорд Генри. — Кому он мог бы не понравиться? Это один из шедевров современной живописи. Я готов отдать за него столько, сколько ты потребуешь. <br>— Этот портрет должен принадлежать мне. <br>— Я не могу его продать, Гарри. Он не мой. <br>— А чей же? <br>— Дориана, разумеется, — ответил художник. <br>— Вот счастливец!</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>Главное здесь — «это один из шедевров современной живописи».</div>
+      <div class="lay a"><span class="tag">🎭 разбор</span>Лёгкий светский обмен — перед самым обвалом. Не нагнетать, контраст к финалу.</div>
+    </div>
+  </div>
+
+  <!-- переход -->
+  <div class="seg author" style="border-left-style:dashed;background:var(--bg2)">
+    <div class="who">↓ переход II → III (финал)</div>
+    <div class="txt" style="font-size:1.05rem;font-style:italic;color:var(--ink-soft)">Пауза — и финал. «Сейчас всё шире.»</div>
+  </div>
+
+  <div class="seg dorian">
+    <div class="who">Дориан · ⭐⭐⭐ кульминация</div>
+    <div class="txt">— Как это печально! <span class="beat">‖</span> — пробормотал вдруг Дориан Грей, всё ещё не отводя глаз от своего портрета. — Как это печально! Я состарюсь, стану противным уродом, а мой портрет будет вечно молод. Он никогда не станет старше, чем в этот июньский день. Ах, если бы могло быть наоборот, если бы старел этот портрет, а я навсегда остался молодым! За это я отдал бы всё на свете. Да, ничего не пожалел бы, <span class="beat">‖</span> <u>душу бы отдал за это</u>.</div>
+    <div class="layers">
+      <div class="lay y"><span class="tag">🎓 Юлия Б.</span>«Дайте каждому увидеть себя.» «"А я навсегда остался молодым" — тянуть, как мечту. "Отдал бы, отдал бы" — нарастание.» <span class="star">«Душу бы отдал за это» — главное слово всей вещи. Что он и сделает. Это страшное — люди продают душу дьяволу. Сказать страшно, чтобы человек испугался, перекрестился.»</span> Не проговорить — выдохнуть как приговор. Подтекст: я и есть душа, а не «у меня есть душа».</div>
+      <div class="lay a"><span class="tag">🎭 разбор</span>Действие: ЗАКЛИНАЮ / ПРИЗЫВАЮ. «Как это печально» — из паузы, не сразу. Финал «душу бы отдал» — тихо, на выдохе, после паузы. Не взрыв — обвал.</div>
+    </div>
+  </div>
+
+  <!-- ════════════ ОТРЫВОК III ════════════ -->
+  <section class="act" id="act3">
+    <div class="num">III</div>
+    <div class="label">Отрывок третий</div>
+    <h2>Перемена</h2>
+    <div class="gist">Годы спустя. Желание сбылось — но портрет изменился. Дориан видит на холсте свою душу. Действие: ВГЛЯДЫВАЮСЬ В УЖАС.</div>
+  </section>
+  <div class="rule"></div>
+
+  <div class="synopsis">
+    <h3>Краткое содержание</h3>
+    <p>Подтверждение, что картина «работает» и желание исполнилось. Дориан сомневается, но, заперевшись на чердаке и закрыв двери, отодвигает ткань — и видит: выражение лица на портрете изменилось, появилась <b>лёгкая, почти незаметная злая ухмылка</b>. Надо скрыть портрет — Бэзил захочет его увидеть. Дориан размышляет, какие законы вселенной связывают его и картину. Но сейчас главное — портрет ясно дал понять: надо исправить несправедливость к Сибиле Вэйн, вернуть любовь и сделать её настоящей.</p>
+  </div>
+
+  <div class="seg author">
+    <div class="who">Автор · внутренний монолог</div>
+    <div class="txt">Что же — отодвинуть его? А не лучше ли оставить на месте? Зачем узнавать? Будет ужасно, если всё окажется правдой. А если нет, — так незачем и беспокоиться. Ну а если по роковой случайности чей-либо посторонний глаз заглянет за этот экран и увидит страшную перемену? Как быть, если Бэзил придёт и захочет взглянуть на свою работу? А Бэзил непременно захочет… Нет, портрет во что бы то ни стало надо рассмотреть ещё раз — и немедленно. Нет ничего тягостнее мучительной неизвестности.</div>
+    <div class="layers">
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[0:00–0:31]</span> Это вход через тревогу — не прыгать сразу к главному. «Нет ничего тягостнее мучительной неизвестности» — 7 сек, ставит как стену, после которой начинается действие.</div>
+      <div class="lay a"><span class="tag">🎭 разбор</span>Темп замедленный, холодный. Думает вслух — настоящие вопросы себе.</div>
+    </div>
+  </div>
+
+  <div class="seg author">
+    <div class="who">Автор</div>
+    <div class="txt">Дориан встал и запер на ключ обе двери. Он хотел, по крайней мере, быть один, когда увидит свой позор. Он отодвинул в сторону экран и стоял теперь лицом к лицу с самим собой.</div>
+    <div class="layers">
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[0:32–0:49]</span> Действие физическое — медленно, шаг за шагом, как ритуал.</div>
+    </div>
+  </div>
+
+  <div class="seg author">
+    <div class="who">Автор · ⭐ удар</div>
+    <div class="txt">Да, <span class="beat">‖</span> сомнений быть не могло: <span class="beat">‖</span> портрет изменился.</div>
+    <div class="layers">
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[0:50–0:58]</span> Три коротких предложения — три отдельных удара, микропаузы между. После «Портрет изменился» — ~2 сек тишины. Это пауза ужаса, физическая, не ораторская.</div>
+      <div class="lay a"><span class="tag">🎭 разбор</span>«Да» — как в Отрывке II: приговор. Безэмоциональность здесь страшнее всего — констатация факта.</div>
+    </div>
+  </div>
+
+  <div class="seg author">
+    <div class="who">Автор · философские вопросы</div>
+    <div class="txt">Позднее Дориан часто и всякий раз с немалым удивлением вспоминал, что в первые минуты он смотрел на портрет с почти объективным интересом. Казалось невероятным, что такая перемена может произойти, а между тем она была налицо. Неужели же есть какое-то непостижимое сродство между его душой и химическими атомами, образующими на полотне формы и краски? Возможно ли, что эти атомы отражают на полотне все движения души, делают её сны явью? Или тут кроется иная, ещё более страшная причина?</div>
+    <div class="layers">
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[1:00–1:54]</span> Вопросы читает как настоящие — с подъёмом интонации и паузой в конце, будто правда ждёт ответа. Не риторика — растерянность.</div>
+    </div>
+  </div>
+
+  <div class="seg author">
+    <div class="who">Автор</div>
+    <div class="txt">Задрожав при этой мысли, Дориан отошёл и снова лёг на кушетку. Отсюда он с ужасом, не отрываясь, смотрел на портрет.</div>
+    <div class="layers">
+      <div class="lay a"><span class="tag">🎭 разбор</span>Спад напряжения телом, но взгляд прикован — голос тише, но не отпускает.</div>
+    </div>
+  </div>
+
+  <div class="seg author">
+    <div class="who">Автор</div>
+    <div class="txt">Утешало его только сознание, что кое-чему портрет уже научил его. Он помог ему понять, как несправедлив, как жесток он был к Сибиле Вэйн. Исправить это ещё не поздно. Сибила станет его женой. Его эгоистичная и, быть может, надуманная любовь под её влиянием преобразится в чувство более благородное, и портрет, написанный Бэзилом, всегда будет указывать ему путь в жизни, руководить им, как одними руководит добродетель, другими — совесть, и всеми людьми — страх перед богом.</div>
+    <div class="layers">
+      <div class="lay a"><span class="tag">🎭 разбор</span>Проблеск надежды — чуть теплее, светлее. Контраст к холодному началу и финалу.</div>
+    </div>
+  </div>
+
+  <div class="seg author">
+    <div class="who">Автор · мысль</div>
+    <div class="txt">В жизни существуют наркотики против угрызений совести, средства, усыпляющие нравственное чутьё. Но здесь, перед его глазами, — видимый символ разложения, наглядные последствия греха. И всегда будет перед ним это доказательство, что человек способен погубить собственную душу.</div>
+    <div class="layers">
+      <div class="lay a"><span class="tag">🎭 разбор</span>«…погубить собственную душу» — рифмуется с финалом II («душу бы отдал»). Связь всех трёх отрывков.</div>
+    </div>
+  </div>
+
+  <div class="seg author">
+    <div class="who">Автор · финал всей вещи</div>
+    <div class="txt">Пробило три часа.</div>
+    <div class="layers">
+      <div class="lay b"><span class="tag">🎙 Борзунов</span><span class="tm">[3:07–3:09]</span> После паузы ~1.4 сек — три слова без эмоции. Точка в конце ночи. Факт.</div>
+      <div class="lay a"><span class="tag">🎭 разбор</span>Не играть. Сухо, ровно — и тишина. Здесь — конец.</div>
+    </div>
+  </div>
+
+  <!-- напутствие -->
+  <div class="outro">
+    <h3>Напутствие Юлии Борисовны</h3>
+    <p>«У вас должно получиться, вам пойдёт. Но главное — вложите больше подтекста, чтобы люди понимали.</p>
+    <p>Первое — “остановись, мгновение”: что красота действительно… в 20 красив, в 50 — уколы, уход, а всё равно видно. А кто-то удивительным образом сохраняет свет внутри.</p>
+    <p>Не приходите просто почитать текст под картинку — копните смысл поглубже, чтобы у человека в зале случился внутренний катарсис.»</p>
+  </div>
+
+  <div class="checklist">
+    <h3>Что доработать дома</h3>
+    <label><input type="checkbox">Отрывок I целиком — вдвое медленнее, чем хочется.</label>
+    <label><input type="checkbox">«Каждый уходящий месяц» — на иронии, легко (текст жёсткий).</label>
+    <label><input type="checkbox">«А красота…» — пауза-интрига перед метафорой.</label>
+    <label><input type="checkbox">Все большие мысли — адресовать ЗАЛУ, тянуть конец вверх.</label>
+    <label><input type="checkbox">«Душу бы отдал за это» — отдельно, страшно, на выдохе.</label>
+    <label><input type="checkbox">Объявления частей + музыка между ними.</label>
+    <label><input type="checkbox">Записать себя → сравнить с Борзуновым → прислать на разбор.</label>
+  </div>
+
+  <a href="#act1" class="top">↑ наверх к Отрывку I</a>
+  <footer>Партитура собрана по урокам с Юлией Борисовной (28.06.2026) и записи С. Борзунова.<br>Школа разбора — «Сценическая речь», ГИТИС.</footer>
+
+</main>
+
+<script>
+  // прогресс-бар скролла
+  var bar=document.getElementById('bar');
+  function upd(){
+    var h=document.documentElement;
+    var sc=(h.scrollTop||document.body.scrollTop);
+    var max=(h.scrollHeight-h.clientHeight)||1;
+    bar.style.width=(sc/max*100)+'%';
+  }
+  document.addEventListener('scroll',upd,{passive:true});
+  upd();
+</script>
+</body>
+</html>
