@@ -1,10 +1,9 @@
 // Service Worker — офлайн-кэш тренажёра Дориан
-const CACHE = 'dorian-v2';
+const CACHE = 'dorian-v3';
 const ASSETS = [
   './',
   './index.html',
-  './uchebnik.html',
-  './manifest.webmanifest',
+  ''./manifest.webmanifest',
   './icon.svg',
   './icon-192.png',
   './icon-512.png'
