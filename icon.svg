@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#14100e"/>
+  <rect x="116" y="78" width="280" height="356" rx="20" fill="none" stroke="#cda35c" stroke-width="11"/>
+  <circle cx="256" cy="222" r="70" fill="none" stroke="#cda35c" stroke-width="11"/>
+  <path d="M158 378c20-58 176-58 196 0" fill="none" stroke="#cda35c" stroke-width="11" stroke-linecap="round"/>
+  <text x="256" y="468" font-family="Georgia, serif" font-size="40" fill="#cda35c" text-anchor="middle" font-style="italic">Дориан</text>
+</svg>

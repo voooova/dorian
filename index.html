@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Дориан · тренажёр</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Дориан">
+<meta name="theme-color" content="#14100e">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<link rel="icon" href="./icon.svg">
+<link rel="manifest" href="./manifest.webmanifest">
+<style>
+  :root{
+    --bg:#14100e;--bg2:#1d1714;--surface:#221b17;--surface2:#2a211c;
+    --ink:#f2e8db;--ink-soft:#cbbca9;--muted:#8d7d6c;
+    --gold:#cda35c;--gold-soft:#e3c389;--line:#3a2e26;
+    --borz:#7fb0c8;--yb:#e0b35e;--emo:#88c0a0;--word:#c98a78;
+    --ok:#7bbf86;--no:#cf7d6e;
+    --h-henry:#cda35c;--h-dorian:#9aa7cf;--h-bezil:#b58fb0;--h-author:#7d7164;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+  html,body{margin:0;height:100%}
+  body{
+    background:radial-gradient(130% 60% at 50% 0%,#241a14 0%,var(--bg) 55%) fixed;color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.5;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    overflow-x:hidden;
+  }
+  .screen{display:none;min-height:100vh;flex-direction:column;max-width:560px;margin:0 auto;padding:0 16px 28px}
+  .screen.on{display:flex}
+
+  /* верхняя панель */
+  .top{display:flex;align-items:center;gap:10px;padding:14px 2px 6px;position:sticky;top:0;background:linear-gradient(180deg,var(--bg) 70%,transparent);z-index:5}
+  .back{font-size:1.3rem;color:var(--gold-soft);background:none;border:none;padding:4px 6px}
+  .top h2{font-family:Georgia,serif;font-size:1.05rem;margin:0;font-weight:600;flex:1}
+  .counter{font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+
+  /* HOME */
+  .hero{text-align:center;padding:40px 6px 10px}
+  .hero .kick{font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gold)}
+  .hero h1{font-family:Georgia,serif;font-size:2.3rem;line-height:1.05;margin:.25em 0 .15em}
+  .hero .sub{color:var(--ink-soft);font-style:italic;font-size:.98rem}
+  .progress-ring{margin:18px auto 6px;font-size:.85rem;color:var(--ink-soft)}
+  .pbar{height:8px;background:var(--surface2);border-radius:99px;overflow:hidden;margin:8px auto 0;max-width:280px}
+  .pbar > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-soft));border-radius:99px;transition:width .4s}
+
+  .menu{display:flex;flex-direction:column;gap:11px;margin:22px 0 6px}
+  .tile{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:15px 16px;text-align:left;color:var(--ink);width:100%}
+  .tile:active{background:var(--surface2)}
+  .tile .ic{font-size:1.5rem;width:30px;text-align:center;flex:0 0 auto}
+  .tile .tx b{display:block;font-size:1.02rem}
+  .tile .tx span{font-size:.8rem;color:var(--muted)}
+  .tile .go{margin-left:auto;color:var(--gold);font-size:1.1rem}
+
+  /* выбор отрывка (чипы) */
+  .seg-pick{display:flex;gap:8px;margin:6px 0 2px;flex-wrap:wrap}
+  .seg-pick button{flex:1;min-width:64px;background:var(--surface);border:1px solid var(--line);color:var(--gold-soft);border-radius:11px;padding:9px 4px;font-size:.82rem}
+  .seg-pick button.sel{background:var(--gold);color:#1a130d;border-color:var(--gold);font-weight:700}
+
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin:14px 0}
+  .panel h3{margin:0 0 9px;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:700}
+  .panel p,.panel li{color:var(--ink-soft);font-size:.88rem;margin:.35em 0}
+  .panel ol{margin:0;padding-left:20px}
+  .panel .day{display:flex;gap:10px;margin:8px 0}
+  .panel .day b{color:var(--gold-soft);flex:0 0 52px}
+  .hint{font-size:.8rem;color:var(--muted);text-align:center;margin:10px 0 0}
+  .hint b{color:var(--gold-soft)}
+
+  /* КАРТОЧКА (flip) */
+  .stage{flex:1;display:flex;align-items:center;justify-content:center;padding:8px 0 4px;perspective:1400px}
+  .card{position:relative;width:100%;min-height:62vh;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,.2,.2,1)}
+  .card.flip{transform:rotateY(180deg)}
+  .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+    border-radius:20px;border:1px solid var(--line);background:linear-gradient(165deg,var(--surface2),var(--surface));
+    padding:22px 20px;display:flex;flex-direction:column;overflow-y:auto}
+  .face.back{transform:rotateY(180deg)}
+  .badge{display:flex;align-items:center;gap:8px;margin-bottom:auto}
+  .badge .who{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .dot{width:9px;height:9px;border-radius:99px;background:var(--h-author)}
+  .henry .dot{background:var(--h-henry)} .dorian .dot{background:var(--h-dorian)}
+  .bezil .dot{background:var(--h-bezil)} .author .dot{background:var(--h-author)}
+  .assoc{text-align:center;margin:auto 0}
+  .assoc .em{font-size:2.6rem;line-height:1}
+  .assoc .word{font-family:Georgia,serif;font-size:1.7rem;color:var(--gold-soft);margin-top:8px}
+  .assoc .cue{color:var(--ink-soft);font-size:1rem;margin-top:14px;font-style:italic}
+  .tap{margin-top:auto;text-align:center;color:var(--muted);font-size:.78rem;padding-top:14px}
+
+  .back .txt{font-family:Georgia,serif;font-size:1.32rem;line-height:1.55;color:var(--ink);margin:auto 0}
+  .back .txt u{text-decoration:none;border-bottom:2px solid var(--gold)}
+  .lays{margin-top:14px;display:flex;flex-direction:column;gap:7px}
+  .lay{font-size:.84rem;line-height:1.45;border-left:3px solid;border-radius:8px;padding:7px 10px}
+  .lay .t{font-size:.6rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-right:6px}
+  .lay.e{background:#16241d;border-color:var(--emo);color:#c4e6d3}.lay.e .t{color:var(--emo)}
+  .lay.y{background:#2c2210;border-color:var(--yb);color:#f0dcb4}.lay.y .t{color:var(--yb)}
+  .lay.b{background:#16252c;border-color:var(--borz);color:#d4e7f0}.lay.b .t{color:var(--borz)}
+  .lay.w{background:#2a1814;border-color:var(--word);color:#f0ccc0}.lay.w .t{color:var(--word)}
+
+  /* кнопки оценки */
+  .rate{display:flex;gap:10px;padding:12px 0 2px}
+  .rate button{flex:1;border:none;border-radius:14px;padding:15px 8px;font-size:.95rem;font-weight:700;color:#16130f}
+  .rate .again{background:linear-gradient(180deg,#e0a08f,var(--no));color:#2a120c}
+  .rate .good{background:linear-gradient(180deg,var(--gold-soft),var(--gold))}
+  .rate.hidden{visibility:hidden}
+  .navrow{display:flex;gap:10px;padding:10px 0 0}
+  .navrow button{flex:1;background:var(--surface);border:1px solid var(--line);color:var(--ink-soft);border-radius:12px;padding:11px;font-size:.85rem}
+
+  /* ЭКЗАМЕН */
+  .qwrap{flex:1;display:flex;flex-direction:column;justify-content:center;gap:4px}
+  .qtype{font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);text-align:center}
+  .qbox{background:linear-gradient(165deg,var(--surface2),var(--surface));border:1px solid var(--line);border-radius:18px;padding:24px 20px;min-height:42vh;display:flex;flex-direction:column}
+  .qq{font-size:1.15rem;color:var(--ink);margin:auto 0}
+  .qq .small{display:block;font-size:.8rem;color:var(--muted);margin-bottom:10px;letter-spacing:.1em;text-transform:uppercase}
+  .qa{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);font-family:Georgia,serif;font-size:1.18rem;color:var(--gold-soft);display:none}
+  .qa.show{display:block}
+  .qa .meta{font-family:-apple-system,sans-serif;font-size:.84rem;color:var(--ink-soft);margin-top:8px;font-style:italic}
+  .reveal{width:100%;margin-top:14px;background:var(--surface);border:1px solid var(--gold);color:var(--gold-soft);border-radius:14px;padding:14px;font-size:.95rem;font-weight:600}
+
+  /* СЛОВА */
+  .words-list{display:flex;flex-direction:column;gap:9px;padding:6px 0 4px}
+  .wcard{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:13px 15px}
+  .wcard b{color:var(--word);font-size:1.05rem}
+  .wcard.q{cursor:pointer}
+  .wcard .def{color:var(--ink-soft);font-size:.9rem;margin-top:5px}
+  .wcard .def.hide{display:none}
+  .wcard .tip{color:var(--muted);font-size:.74rem;margin-top:6px}
+
+  /* НАИЗУСТЬ */
+  .rc-wrap{flex:1;display:flex;flex-direction:column;gap:12px;padding:6px 0 4px}
+  .rc-cue{background:linear-gradient(165deg,var(--surface2),var(--surface));border:1px solid var(--line);border-radius:16px;padding:18px;text-align:center}
+  .rc-cue .who{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .rc-cue .em{font-size:2.2rem;margin-top:4px}
+  .rc-cue .word{font-family:Georgia,serif;font-size:1.6rem;color:var(--gold-soft);margin-top:4px}
+  .rc-cue .more{margin-top:10px;color:var(--ink-soft);font-size:.92rem;font-style:italic;display:none}
+  .rc-cue .more.show{display:block}
+  .hintbtn{background:none;border:1px solid var(--line);color:var(--muted);border-radius:10px;padding:6px 12px;font-size:.78rem;margin-top:10px}
+  textarea.rc{width:100%;min-height:120px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;color:var(--ink);
+    font-family:Georgia,serif;font-size:1.1rem;line-height:1.5;padding:13px;resize:vertical;-webkit-user-select:text;user-select:text}
+  textarea.rc:focus{outline:none;border-color:var(--gold)}
+  .rc-actions{display:flex;gap:10px}
+  .rc-actions button{flex:1;border-radius:12px;padding:13px;font-size:.9rem;font-weight:700;border:none}
+  .rc-check{background:linear-gradient(180deg,var(--gold-soft),var(--gold));color:#1a130d}
+  .rc-voice{background:var(--surface);color:var(--gold-soft);border:1px solid var(--gold)!important}
+  .rc-result{display:none}
+  .rc-result.show{display:block}
+  .rc-score{text-align:center;font-size:1.5rem;font-weight:800;margin:4px 0 10px}
+  .rc-score small{display:block;font-size:.8rem;font-weight:400;color:var(--muted)}
+  .rc-diff{font-family:Georgia,serif;font-size:1.18rem;line-height:1.6;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .rc-diff .hit{color:var(--ok)}
+  .rc-diff .miss{color:var(--no);text-decoration:underline;text-decoration-style:wavy;text-underline-offset:3px}
+  .rc-next{width:100%;margin-top:12px;background:var(--surface);border:1px solid var(--gold);color:var(--gold-soft);border-radius:14px;padding:14px;font-size:.95rem;font-weight:600}
+
+  /* СПРИНТ */
+  .sp-head{display:flex;align-items:center;gap:12px;padding:4px 2px 8px}
+  .sp-timer{font-size:2rem;font-weight:800;font-variant-numeric:tabular-nums;color:var(--gold-soft);line-height:1}
+  .sp-timer.low{color:var(--no)}
+  .sp-score{margin-left:auto;font-size:.9rem;color:var(--ink-soft)}
+  .sp-bar{height:6px;background:var(--surface2);border-radius:99px;overflow:hidden;margin:0 0 8px}
+  .sp-bar>i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--gold),var(--gold-soft));transition:width 1s linear}
+  .sp-card{flex:1;display:flex;flex-direction:column;border-radius:20px;border:1px solid var(--line);
+    background:linear-gradient(165deg,var(--surface2),var(--surface));padding:22px 20px;overflow-y:auto;min-height:50vh}
+  .sp-text{font-family:Georgia,serif;font-size:1.18rem;line-height:1.5;color:var(--ink);margin-top:14px;padding-top:14px;border-top:1px dashed var(--line);display:none}
+  .sp-text.show{display:block}
+  .sp-tap{margin-top:auto;text-align:center;color:var(--muted);font-size:.76rem;padding-top:12px}
+
+  /* ПРОПУСКИ */
+  .cl-card{flex:1;display:flex;flex-direction:column;border-radius:20px;border:1px solid var(--line);
+    background:linear-gradient(165deg,var(--surface2),var(--surface));padding:22px 20px;overflow-y:auto;min-height:54vh}
+  .cl-text{font-family:Georgia,serif;font-size:1.3rem;line-height:1.7;color:var(--ink);margin:auto 0}
+  .gap{display:inline-block;min-width:54px;border-bottom:2px solid var(--gold);color:transparent;text-align:center;cursor:pointer;border-radius:3px}
+  .gap.open{color:var(--ok);border-bottom-color:var(--ok)}
+  .cl-actions{display:flex;gap:10px;padding:10px 0 0}
+  .cl-actions button{flex:1;border-radius:12px;padding:13px;font-size:.86rem;font-weight:700;border:none}
+  .cl-show{background:linear-gradient(180deg,var(--gold-soft),var(--gold));color:#1a130d}
+  .cl-redo{background:var(--surface);color:var(--ink-soft);border:1px solid var(--line)!important}
+  .cl-next{background:var(--surface);color:var(--gold-soft);border:1px solid var(--gold)!important}
+
+  .done{text-align:center;margin:auto 0;padding:30px}
+  .done .big{font-size:3rem}
+  .done h3{font-family:Georgia,serif;font-size:1.5rem;margin:.3em 0}
+  .done p{color:var(--ink-soft)}
+  .btn-primary{background:linear-gradient(180deg,var(--gold-soft),var(--gold));color:#1a130d;border:none;border-radius:14px;padding:15px;font-size:1rem;font-weight:700;width:100%;margin-top:14px}
+  .reset{background:none;border:none;color:var(--muted);font-size:.78rem;margin-top:18px;text-decoration:underline}
+</style>
+</head>
+<body>
+
+<!-- ░░░ HOME ░░░ -->
+<section id="home" class="screen on">
+  <div class="hero">
+    <div class="kick">Оскар Уайльд · М. Урнов</div>
+    <h1>Дориан Грей<br>тренажёр</h1>
+    <div class="sub">выучить за 2 дня — 29 и 30</div>
+    <div class="progress-ring">Выучено <b id="learned">0</b> из <b id="total">0</b> карточек</div>
+    <div class="pbar"><i id="pfill"></i></div>
+  </div>
+
+  <div class="menu">
+    <button class="tile" onclick="startCards()"><span class="ic">🃏</span><span class="tx"><b>Карточки</b><span>лицо — ассоциация, оборот — текст + разбор</span></span><span class="go">›</span></button>
+    <button class="tile" onclick="startQuiz()"><span class="ic">🎯</span><span class="tx"><b>Экзамен</b><span>откуда кусок, о чём, что дальше, эмоция, ЮБ</span></span><span class="go">›</span></button>
+    <button class="tile" onclick="startRecall()"><span class="ic">✍️</span><span class="tx"><b>Наизусть</b><span>подсказка → напиши/скажи текст, проверю слово в слово</span></span><span class="go">›</span></button>
+    <button class="tile" onclick="startCloze()"><span class="ic">▢</span><span class="tx"><b>Пропуски</b><span>фраза с дырками на ключевых словах</span></span><span class="go">›</span></button>
+    <button class="tile" onclick="startSprint()"><span class="ic">⏱</span><span class="tx"><b>Спринт за минуту</b><span id="sprint-best">сколько вспомнишь за 60 секунд</span></span><span class="go">›</span></button>
+    <button class="tile" onclick="show('words')"><span class="ic">📖</span><span class="tx"><b>Сложные слова</b><span>ломонос, гедонизм, аметистовый…</span></span><span class="go">›</span></button>
+    <a class="tile" href="./uchebnik.html" style="text-decoration:none;color:inherit"><span class="ic">📕</span><span class="tx"><b>Учебник-партитура</b><span>весь текст + разбор Борзунов / Юлия Б.</span></span><span class="go">›</span></a>
+  </div>
+
+  <div style="font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:6px 2px 2px">Учить отрывок</div>
+  <div class="seg-pick" id="segpick">
+    <button data-seg="all" class="sel">Все</button>
+    <button data-seg="1">I · Мастерская</button>
+    <button data-seg="2">II · Желание</button>
+    <button data-seg="3">III · Перемена</button>
+  </div>
+
+  <div class="panel">
+    <h3>План на 2 дня</h3>
+    <div class="day"><b>29-го</b><span>Отрывок I целиком — карточки 3 круга, потом экзамен. Вечером — слова.</span></div>
+    <div class="day"><b>30-го</b><span>Отрывки II и III — карточки + экзамен. Финал: «Все» вперемешку до 100%.</span></div>
+  </div>
+
+  <div class="panel">
+    <h3>Как запоминать (не зубрить — вспоминать)</h3>
+    <ol>
+      <li><b>Сначала вспомни сам</b> — смотри ассоциацию, проговори вслух, и только потом переворачивай.</li>
+      <li><b>Вслух и с действием</b> — не глазами. Память тела + голоса крепче.</li>
+      <li><b>«Не вспомнил» — честно жми «Ещё раз»</b> — карточка вернётся, пока не закрепишь.</li>
+      <li><b>Цепляй образ</b> — каждый блок = картинка-крючок, они идут цепочкой-маршрутом.</li>
+      <li><b>Короткими подходами</b> — 15–20 мин, перерыв, повтор. Перед сном — ещё раз.</li>
+    </ol>
+  </div>
+
+  <div class="panel">
+    <h3>📲 Поставить на айфон как приложение</h3>
+    <p>1. Открой этот файл в <b>Safari</b>.<br>2. Нажми «Поделиться» (квадрат со стрелкой).<br>3. «<b>На экран “Домой”</b>» → Добавить.<br>Появится иконка — откроется на весь экран, без браузера, работает офлайн. Прогресс сохраняется.</p>
+  </div>
+
+  <button class="reset" onclick="resetAll()">сбросить прогресс</button>
+</section>
+
+<!-- ░░░ CARDS ░░░ -->
+<section id="cards" class="screen">
+  <div class="top">
+    <button class="back" onclick="show('home')">‹</button>
+    <h2 id="cards-title">Карточки</h2>
+    <span class="counter" id="cards-count"></span>
+  </div>
+  <div class="stage">
+    <div class="card" id="card" onclick="flipCard()">
+      <div class="face front" id="front"></div>
+      <div class="face back" id="back"></div>
+    </div>
+  </div>
+  <div class="rate hidden" id="rate">
+    <button class="again" onclick="rate(false)">↻ Ещё раз</button>
+    <button class="good" onclick="rate(true)">✓ Помню</button>
+  </div>
+</section>
+
+<!-- ░░░ QUIZ ░░░ -->
+<section id="quiz" class="screen">
+  <div class="top">
+    <button class="back" onclick="show('home')">‹</button>
+    <h2>Экзамен</h2>
+    <span class="counter" id="quiz-count"></span>
+  </div>
+  <div class="qwrap" id="qwrap"></div>
+</section>
+
+<!-- ░░░ RECALL (наизусть) ░░░ -->
+<section id="recall" class="screen">
+  <div class="top">
+    <button class="back" onclick="show('home')">‹</button>
+    <h2>Наизусть</h2>
+    <span class="counter" id="rc-count"></span>
+  </div>
+  <div class="rc-wrap" id="rc-wrap"></div>
+</section>
+
+<!-- ░░░ CLOZE (пропуски) ░░░ -->
+<section id="cloze" class="screen">
+  <div class="top">
+    <button class="back" onclick="show('home')">‹</button>
+    <h2>Пропуски</h2>
+    <span class="counter" id="cl-count"></span>
+  </div>
+  <div class="cl-card" id="cl-card"></div>
+  <div class="cl-actions" id="cl-actions">
+    <button class="cl-redo" onclick="renderCloze()">↻ другие</button>
+    <button class="cl-show" onclick="clShowAll()">Показать всё</button>
+    <button class="cl-next" onclick="clNext()">Дальше →</button>
+  </div>
+</section>
+
+<!-- ░░░ SPRINT (минута) ░░░ -->
+<section id="sprint" class="screen">
+  <div class="top">
+    <button class="back" onclick="stopSprint();show('home')">‹</button>
+    <h2>Спринт</h2>
+  </div>
+  <div class="sp-head">
+    <span class="sp-timer" id="sp-time">60</span>
+    <span class="sp-score" id="sp-score">вспомнил: 0</span>
+  </div>
+  <div class="sp-bar"><i id="sp-fill"></i></div>
+  <div class="sp-card" id="sp-card" onclick="spReveal()"></div>
+  <div class="rate" id="sp-rate">
+    <button class="again" onclick="spMark(false)">✗ мимо</button>
+    <button class="good" onclick="spMark(true)">✓ вспомнил</button>
+  </div>
+</section>
+
+<!-- ░░░ WORDS ░░░ -->
+<section id="words" class="screen">
+  <div class="top">
+    <button class="back" onclick="show('home')">‹</button>
+    <h2>Сложные слова</h2>
+    <span class="counter" id="words-count"></span>
+  </div>
+  <div class="words-list" id="wlist"></div>
+  <p class="hint">Жми на слово — проверь, помнишь ли значение.</p>
+</section>
+
+<script>
+/* ===================== ДАННЫЕ ===================== */
+// who: henry|dorian|bezil|author ; em=эмодзи-образ ; assoc=слово-крючок ; cue=что делаю
+// txt=полный текст ; emo=эмоция/действие ; yb=Юлия Борисовна ; borz=Борзунов ; words=[[слово,значение]]
+const DECK=[
+/* —— ОТРЫВОК I —— */
+{act:1,who:"henry",em:"🌳",assoc:"ТЕНЬ",cue:"Зову в тень — светски приглашаю в свой мир",
+ txt:"— Давайте сядем где-нибудь в тени. Вот Паркер уже несёт нам питьё. А если вы будете стоять на солнцепёке, вы подурнеете, и Бэзил больше не захочет вас писать. Загар будет вам не к лицу, — сказал лорд Генри.",
+ emo:"Светская лёгкость, первая шпилька — комплимент через угрозу.",
+ yb:"«Это зал — вы их приглашаете. Светски, не бытово (не председатель колхоза). Все точки расставить.»",
+ borz:"[0:04] лёгкая подача, «подурнеете» чуть выделено, вдох-пауза перед Дорианом.",
+ words:[["солнцепёк","место под прямым солнцем, пекло"],["подурнеете","станете некрасивее"]]},
+
+{act:1,who:"dorian",em:"🤷",assoc:"ОТМАШКА",cue:"Отмахиваюсь — ещё не задет",
+ txt:"— Эка важность, подумаешь! — засмеялся Дориан Грей, садясь на скамью в углу сада.",
+ emo:"Лёгкая светская усмешка.",
+ yb:"«Светское общество — внутри не показываем. Как Кирилл Альфредович: всё себе на уме. Не Островский.»",
+ borz:"[0:21] лёгкая отмашка, с усмешкой.",words:[]},
+
+{act:1,who:"henry",em:"☝️",assoc:"ВАЖНО",cue:"Не отступаю — тихо, иронично",
+ txt:"— Для вас это очень важно, мистер Грей.",
+ emo:"Медленнее — начало удара. Уверенно.",
+ yb:"«Чуть ироничнее. Светски, отстраняясь.»",borz:"",words:[]},
+
+{act:1,who:"dorian",em:"❔",assoc:"ПОЧЕМУ",cue:"Любопытство, ещё не тревога",
+ txt:"— Почему же?",
+ emo:"Светски, чуть отстраняясь от вопроса.",
+ yb:"«Он всё сам понимает, но это игра — отстраняясь.»",borz:"",words:[]},
+
+{act:1,who:"henry",em:"💎",assoc:"БОГАТСТВО",cue:"Молодость = единственное богатство",
+ txt:"— Да потому что вам дана чудесная красота молодости. А молодость — единственное богатство, которое стоит беречь.",
+ emo:"Тепло, весомо — закладываю идею.",
+ yb:"«“Чудесная красота молодости” — одно понятие. После “А молодость” — запятая по мысли.»",
+ borz:"[0:33] слитно, тепло; пауза ~1.1с перед ответом.",words:[]},
+
+{act:1,who:"dorian",em:"🙅",assoc:"НЕ ДУМАЮ",cue:"Сопротивляюсь",
+ txt:"— Я этого не думаю, лорд Генри.",
+ emo:"Живой диалог, не декламация.",
+ yb:"«Не под себя. Как будто мы разговариваем.»",borz:"",words:[]},
+
+{act:1,who:"henry",em:"👹",assoc:"СТАРИК-МОРЩИНЫ",cue:"Пугаю красиво: станешь стариком",
+ txt:"Теперь вы, конечно, этого не думаете. Но когда вы станете безобразным стариком, когда думы избороздят ваш лоб морщинами, а страсти своим губительным огнём иссушат ваши губы, вы поймёте это с неумолимой ясностью.",
+ emo:"Снисходительно, не торопясь, на улыбке внутри.",
+ yb:"«“Не думаете” — наверх, перспектива. Дай прокрутить киноленту видений. На “иссушат” — вес; “губы” не выделять. “С неумолимой ясностью” — одно понятие, обратного пути нет.»",
+ borz:"[0:46] втрое медленнее обычного; каждый член перечисления отдельным мазком.",
+ words:[["избороздят","изрежут, покроют (морщинами)"],["иссушат","высушат, лишат свежести"],["неумолимой","беспощадной, неотвратимой"]]},
+
+{act:1,who:"henry",em:"👑",assoc:"ПЛЕНЯЕТЕ",cue:"Сейчас пленяешь — но всегда ли?",
+ txt:"Теперь, куда бы вы ни пришли, вы всех пленяете. Но разве так будет всегда?",
+ emo:"Комплимент как нож. Риторический вопрос — ответа не жду.",
+ yb:"«К слову “пленяете” идти. “Но разве так будет всегда?” — шире, всему залу, чтобы каждый про себя подумал. Сила — в конце.»",
+ borz:"[1:04] пауза ~1.5с после вопроса.",words:[["пленяете","очаровываете, покоряете"]]},
+
+{act:1,who:"henry",em:"✨",assoc:"А КРАСОТА…",cue:"ПАУЗА-интрига → красота это гений",
+ txt:"Вы удивительно хороши собой, мистер Грей. Не хмурьтесь, это правда. А красота — один из видов гения.",
+ emo:"Комплимент-ловушка. Улыбка в голосе.",
+ yb:"«Вы светская овчина — снисходительно. Перед “А красота” — ПАУЗА-интрига! Люди должны запомнить метафору и уйти с ней.»",
+ borz:"[1:16] ровно, весомо, как формула.",words:[]},
+
+{act:1,who:"henry",em:"🌙",assoc:"ЛУНА",cue:"Красота — как солнце, весна, луна",
+ txt:"Она ещё выше гения, ибо не требует понимания. Она — одно из великих явлений окружающего нас мира, как солнечный свет, или весна, или отражение в тёмных водах серебряного щита луны.",
+ emo:"Любуюсь образами, говорю с картинкой в голове.",
+ yb:"«Через себя: красоту видишь — задыхаешься, осмыслять не надо. Вы выдаёте карту, но формулируете в моменте.»",
+ borz:"[1:19] образы плавно, на одном дыхании; после “луны” — крупная пауза.",
+ words:[["ибо","потому что"]]},
+
+{act:1,who:"henry",em:"⚔️",assoc:"КОРОНА-ВЛАСТЬ",cue:"3 слова-удар: Красота неоспорима",
+ txt:"Красота неоспорима. Она имеет высшее право на власть и делает царями тех, кто ею обладает.",
+ emo:"Удар. Не поучительно — залу.",
+ yb:"«“Красота неоспорима, господа” — в паузе дай осмыслить, чтобы в ухо вошло. Власть — парадокс. “Обладает” — слово наверх.»",
+ borz:"[1:34] ПАУЗА 1.8с перед “Красота неоспорима” — три слова как три камня.",words:[]},
+
+{act:1,who:"henry",em:"🛡️",assoc:"ЩИТ vs МЫСЛЬ",cue:"Утратишь — не улыбнёшься; щита земная",
+ txt:"Вы улыбаетесь? О, когда вы её утратите, вы не будете улыбаться. Иные говорят, что красота — это щита земная. Быть может. Но во всяком случае она не так тщетна, как мысль.",
+ emo:"«Вы улыбаетесь?» — залу. Противопоставление: мысль чуть сильнее.",
+ yb:"«Залу. “Щита” говори чётко — иначе подумают, что не выговорил слово.»",
+ borz:"[1:44] мягко, потом тёмное “когда утратите…”.",
+ words:[["щита земная","суетное, преходящее земное благо"],["тщетна","напрасна, бесполезна"]]},
+
+{act:1,who:"henry",em:"🙄",assoc:"ГЛУПЦЫ",cue:"Для меня красота — чудо из чудес",
+ txt:"Для меня красота — чудо из чудес. Только пустые и ограниченные люди не судят по внешности. Подлинная тайна жизни заключена в зримом, а не в сокровенном.",
+ emo:"Снисхождение к глупцам — оправдываю свою позицию.",
+ yb:"«“Для меня” — выделить. “Пустые и ограниченные” — одно понятие. Не спорим — оправдываем его.»",
+ borz:"",words:[["зримом","видимом"],["сокровенном","скрытом, тайном"]]},
+
+{act:1,who:"henry",em:"⏳",assoc:"БОГИ ДАЮТ-ОТНИМАЮТ",cue:"Боги милостивы, но скоро отнимут",
+ txt:"Да, мистер Грей, боги к вам милостивы, но боги скоро отнимают то, что дают. У вас впереди немного лет для жизни настоящей, полной и прекрасной. Минет молодость, а с нею красота. И вот вам вдруг станет ясно, что время побед прошло, или придётся довольствоваться победами столь жалкими, что в сравнении с прошлым они вам будут казаться горше поражений.",
+ emo:"Ведёт длинную мысль ровно, без провалов.",
+ yb:"«“Не много лет” подчеркнуть. После “время побед прошло” — троеточие. Перед “что” паузы нет. Пошире, не пробалтывать.»",
+ borz:"[2:12] длинная мысль до “горше поражений” без провалов.",
+ words:[["минет","пройдёт, минует"],["довольствоваться","обходиться малым"]]},
+
+{act:1,who:"henry",em:"🕰️",assoc:"ЧАСЫ-МЕСЯЦ",cue:"Каждый месяц приближает к старости — НА ИРОНИИ",
+ txt:"Каждый уходящий месяц приближает вас к этому тяжкому будущему. Время ревниво. Оно покушается на лилии и розы, которыми одарили вас боги. Щёки ваши пожелтеют и ввалятся, глаза потускнеют. Вы будете страдать ужасно.",
+ emo:"⭐ ИРОНИЯ! Текст жёсткий — говорю легко, тогда страшнее.",
+ yb:"«Прошли годы — теперь МЕСЯЦ, потом день, минута. Нужна ирония, иначе “да-да-да” — бред. Каждый видит своё зеркало.»",
+ borz:"[2:39] длинная, потом короткими ударами: “Время ревниво.” / “Глаза потускнеют.”",
+ words:[["ревниво","завистливо стережёт"],["покушается","посягает, пытается отнять"]]},
+
+{act:1,who:"henry",em:"🚫",assoc:"ТРИ НЕ",cue:"Пользуйтесь молодостью; не тратьте, не отдавайте",
+ txt:"Так пользуйтесь же своей молодостью, пока она не ушла. Не тратьте понапрасну золотые дни, слушая нудных святош. Не пытайтесь исправлять то, что неисправимо. Не отдавайте свою жизнь невеждам, пошлякам и ничтожествам, следуя ложным идеям и нездоровым стремлениям нашей эпохи.",
+ emo:"Нарастание, удары «не…/не…/не…». Подталкиваю.",
+ yb:"«Пользуйтесь молодостью — это залог.»",borz:"[2:59] перечисление нарастает.",
+ words:[["святош","показных, лицемерных праведников"],["невеждам","необразованным, тёмным людям"],["пошлякам","пошлым, банальным людям"]]},
+
+{act:1,who:"henry",em:"🔥",assoc:"ЖИВИТЕ!",cue:"СТОП. Живите! Ничего не бойтесь",
+ txt:"Живите! Живите той чудесной жизнью, что скрыта в вас. Ничего не упускайте. Вечно ищите всё новых ощущений. Ничего не бойтесь.",
+ emo:"Кульминация соблазна.",
+ yb:"«СТОП. Живите! — отдельно. Пауза после “ощущений”. “Ничего не бойтесь” — залу (в Библии чаще всего: “не бойся”).»",
+ borz:"[3:20] “Живите!” — возглас; второе “Живите…” тише, пауза 0.8с — смена режима, не повтор.",words:[]},
+
+{act:1,who:"henry",em:"😈",assoc:"ГЕДОНИЗМ",cue:"Новый гедонизм — будь лукав",
+ txt:"Новый гедонизм — вот что нужно нашему поколению. И вы могли бы стать его зримым символом. Для такого, как вы, нет ничего невозможного. На короткое время мир принадлежит вам.",
+ emo:"⭐ Будьте лукавы, иронично — искушаю.",
+ yb:"«Гедонизм — противовес аскезе: мне всё нужно, эмоции, много и всё. “На короткое время” — привет Фаусту: остановись, мгновение.»",
+ borz:"",words:[["гедонизм","философия наслаждения как высшей ценности"],["зримым","видимым, наглядным"]]},
+
+{act:1,who:"henry",em:"🪞",assoc:"ПОЗНАЙ СЕБЯ",cue:"Помогу познать себя; жизнь не должна пропасть даром",
+ txt:"Я с первого взгляда понял, что вы себя ещё не знаете. Не знаете, чем вы могли бы быть. Многое в вас меня пленило, и я почувствовал, что должен помочь вам познать самого себя. Я думал, как было бы трагично, если бы эта жизнь пропала даром. Ведь молодость ваша пройдёт так быстро.",
+ emo:"⭐ ИСКУШАЙ. Доверительно, ближе.",
+ yb:"«Всё с залом. Искушение: возьми от жизни всё. Люди должны подумать, что зря прожили — а в конце испугаться.»",
+ borz:"[3:48] доверительно, переход от проповеди к личному.",words:[]},
+
+{act:1,who:"henry",em:"🌸",assoc:"ЦВЕТЫ-ЛОМОНОС",cue:"Цветы вянут, но расцветают — а мы нет",
+ txt:"Простые полевые цветы вянут, но опять расцветают. Будущим летом ракитник в июне будет так же сверкать золотом, как сейчас. Через месяц зацветёт пурпурными звёздами ломонос, и каждый год в зелёной ночи его листьев будут загораться всё новые пурпурные звёзды. А к нам молодость не возвращается.",
+ emo:"Любуюсь природой, потом слом в тень.",
+ yb:"«Как двоеточие: вянут — но расцветают, а НЕ мы. Цветок 20 раз возродится — человек нет. Перед “не возвращается” — пауза.»",
+ borz:"[4:11] природа светло; “молодость не возвращается” — резкий слом.",
+ words:[["ракитник","кустарник с золотисто-жёлтыми цветами"],["ломонос","южный вьющийся кустарник с цветами-звёздами"],["пурпурными","тёмно-багряными"]]},
+
+{act:1,who:"henry",em:"🎭",assoc:"МАРИОНЕТКИ",cue:"Стареем — превращаемся в марионеток сожалений",
+ txt:"Слабеет пульс радости, что бьётся так сильно в двадцать лет. Дряхлеет тело, угасают чувства. Мы превращаемся в отвратительных марионеток с неотвязными воспоминаниями о тех страстях, которых мы слишком боялись, и соблазнах, которым мы не посмели уступить.",
+ emo:"Тяжелеет, темнеет — спуск в грудной.",
+ yb:"«“Слабеет пульс радости” — ирония. В 40 голову не повернёшь, в 20 — гормоны.»",
+ borz:"",words:[["дряхлеет","стареет, слабеет"],["марионеток","кукол на нитках"],["неотвязными","навязчивыми, не отпускающими"]]},
+
+{act:1,who:"henry",em:"⭐",assoc:"МОЛОДОСТЬ!",cue:"Финал I: Молодость! Молодость!",
+ txt:"Молодость! Молодость! В мире нет ничего ей равного.",
+ emo:"Пик → тишина → тихо на выдохе.",
+ yb:"«Перед финалом — пауза. Тут музыку.»",
+ borz:"[4:57] “Молодость! Молодость!” — пик; пауза 0.4с; финал тихо, на выдохе.",words:[]},
+
+/* —— ОТРЫВОК II —— */
+{act:2,who:"author",em:"🖌️",assoc:"КИСТЬ",cue:"Художник смотрит — 10 секунд, не спешить",
+ txt:"Художник перестал работать. Он долго смотрел на Дориана Грея, потом так же долго на портрет, хмурясь и покусывая кончик длинной кисти.",
+ emo:"Атмосфера, не информация.",
+ yb:"«Бытовой текст, новый кусок. Вообще не спешить. Точка только в конце.»",
+ borz:"[0:00] 10 секунд на одно предложение — видишь художника раньше, чем слышишь “Готово”.",words:[]},
+
+{act:2,who:"bezil",em:"✅",assoc:"ГОТОВО!",cue:"Выдох мастера",
+ txt:"— Готово! — воскликнул он наконец и, нагнувшись, подписал своё имя длинными красными буквами в левом углу картины.",
+ emo:"Выдох облегчения.",
+ yb:"«“Готово!” — восклицательный, не вопрос. “Нагнувшись, подписал” — слитно.»",
+ borz:"[0:11]",words:[]},
+
+{act:2,who:"henry",em:"👏",assoc:"ШЕДЕВР",cue:"Хвалю картину; подойдите, судите сами",
+ txt:"Лорд Генри подошёл ближе, чтобы лучше рассмотреть. — Дорогой мой Бэзил, поздравляю тебя от всей души. Я не знаю лучшего портрета во всей современной живописи. Подойдите же сюда, мистер Грей, и судите сами.",
+ emo:"Восхищение искреннее, но светское.",
+ yb:"«Всё шире. Чуть подвешиваешь, будь в моменте. На “подойдите” — надо подойти.»",borz:"[0:22]",words:[]},
+
+{act:2,who:"author",em:"😴",assoc:"ОЧНУЛСЯ",cue:"Юноша вздрогнул, как ото сна",
+ txt:"Юноша вздрогнул, как человек, внезапно очнувшийся от сна.",
+ emo:"Дориан выходит из транса.",yb:"",borz:"",words:[]},
+
+{act:2,who:"dorian",em:"🤝",assoc:"КОНЧЕНО?",cue:"Кончено? — Да + шутка Генри",
+ txt:"— В самом деле, кончено? — спросил он, сходя с подмостков. — Да, да. И вы сегодня прекрасно позировали. Я вам за это бесконечно благодарен. — За это надо благодарить меня, — вмешался лорд Генри. — Правда, мистер Грей?",
+ emo:"Дориан тихо; реплика Генри — юмор.",
+ yb:"«“Да, да” — это художник, шире. “За это надо благодарить меня” — юмор, светское общество.»",borz:"",words:[["подмостков","помоста, возвышения для позирования"]]},
+
+{act:2,who:"author",em:"🪞",assoc:"ЗЕРКАЛО",cue:"Шаг назад → испуг → вспыхнул от удовольствия",
+ txt:"Дориан, не отвечая, с рассеянным видом прошёл мимо мольберта, затем повернулся к нему лицом. При первом взгляде на портрет он невольно сделал шаг назад и вспыхнул от удовольствия. Глаза его блеснули так радостно, словно он первый раз увидел себя. Он стоял неподвижно, погружённый в созерцание. Он стоял неподвижно, смутно сознавая, что Бэзил что-то говорит ему.",
+ emo:"Сначала испуг, потом восторг.",
+ yb:"«Как будто он ИСПУГАЛСЯ портрета.» С ЮБ убрали “но не вникая в смысл” и вернули повтор “Он стоял неподвижно” — два удара транса.",
+ borz:"[1:20] “При первом взгляде на портрет…” — реальная пауза на многоточии.",
+ words:[["мольберта","подставки, на которой стоит холст"],["созерцание","сосредоточенное любование"]]},
+
+{act:2,who:"author",em:"💡",assoc:"ОТКРОВЕНИЕ",cue:"Осознал красоту; вспомнил слова Генри",
+ txt:"Как откровение пришло к нему сознание своей красоты. До сих пор он как-то её не замечал. Но вот появился лорд Генри, прозвучал его восторженный гимн молодости, грозное предостережение о том, что она быстротечна. Это взволновало Дориана, и сейчас, когда он смотрел на отражение своей красоты, перед ним вдруг с поразительной ясностью встало то будущее, о котором говорил лорд Генри.",
+ emo:"Смычка с Отрывком I — та же тема красоты.",
+ yb:"«Тут связали первый и второй кусок — красотой. “О том, что она” — одно слово. “Это взволновало Дориана” — точка опоры.»",
+ borz:"",words:[["быстротечна","быстро проходит"]]},
+
+{act:2,who:"dorian",em:"⚰️",assoc:"ДА → УВЯДАНИЕ",cue:"Да. Наступит день — лицо поблекнет…",
+ txt:"Да. Наступит день, когда его лицо поблекнет и сморщится, глаза потускнеют, выцветут, стройный стан согнётся, станет безобразным. Годы унесут с собой алость губ и золото волос. Жизнь, формируя его душу, будет разрушать его тело. Он станет отталкивающе некрасив, жалок и страшен.",
+ emo:"То, чем пугал Генри — теперь Дориан говорит сам себе.",
+ yb:"«“Да.” — подхватить сразу.»",
+ borz:"[2:38] “Да.” + пауза 1.5с тишины. Увядание — нарастание по длине.",
+ words:[["поблекнет","потускнеет, выцветет"],["стан","фигура, корпус"]]},
+
+{act:2,who:"author",em:"🗡️",assoc:"НОЖ-ЛЁД",cue:"Боль как ножом; глаза в слезах; ледяная рука",
+ txt:"При этой мысли острая боль, как ножом, пронзила Дориана, и каждая жилка в нём затрепетала. Глаза потемнели, став из голубых аметистовыми, и затуманились слезами. Словно ледяная рука легла ему на сердце.",
+ emo:"Эго заледенело — снежная королева.",
+ yb:"«Я должна увидеть глаза, полные слёз. “Ледяная рука” — эго заледенеет. Здесь пауза.»",
+ borz:"[3:11] “острая боль…” — 7 сек: максимальный вес. “Глаза потемнели” — удар, пауза.",
+ words:[["аметистовыми","фиолетово-сиреневыми (цвет камня аметист)"],["затрепетала","задрожала"]]},
+
+{act:2,who:"bezil",em:"💬",assoc:"СВЕТСКИЙ ОБМЕН",cue:"Нравится? — Шедевр; чей портрет? — Дориана",
+ txt:"— Разве портрет вам не нравится? — воскликнул наконец Бэзил, немного задетый молчанием Дориана. — Ну конечно, нравится, — ответил за него лорд Генри. — Кому он мог бы не понравиться? Это один из шедевров современной живописи. Я готов отдать за него столько, сколько ты потребуешь. — Этот портрет должен принадлежать мне. — Я не могу его продать, Гарри. Он не мой. — А чей же? — Дориана, разумеется, — ответил художник. — Вот счастливец!",
+ emo:"Лёгкий светский обмен — перед обвалом. Не нагнетать.",
+ yb:"«Главное — “это один из шедевров современной живописи”.»",borz:"",words:[]},
+
+{act:2,who:"dorian",em:"💀",assoc:"ДУШУ БЫ ОТДАЛ",cue:"⭐⭐⭐ Как печально… душу бы отдал за это!",
+ txt:"— Как это печально! — пробормотал вдруг Дориан Грей, всё ещё не отводя глаз от портрета. — Как печально! Я состарюсь, стану противным уродом, а мой портрет будет вечно молод. Он никогда не станет старше, чем в этот июньский день. Ах, если бы могло быть наоборот! Если бы старел этот портрет, а я навсегда остался молодым! За это… за это я отдал бы всё на свете. Да, ничего не пожалел бы! Душу бы отдал за это!",
+ emo:"⭐⭐⭐ Кульминация. Страшно, на выдохе, как приговор.",
+ yb:"«Дайте каждому увидеть себя. “Душу бы отдал за это” — главное слово всей вещи. Что он и сделает. Сказать страшно — чтобы зритель перекрестился. Я и есть душа, а не “у меня есть душа”.»",
+ borz:"финал — из паузы, не сразу; не взрыв — обвал.",words:[]},
+
+/* —— ОТРЫВОК III —— */
+{act:3,who:"author",em:"😰",assoc:"ТРЕВОГА",cue:"Отодвинуть или нет? Бэзил захочет увидеть",
+ txt:"Что же — отодвинуть его? А не лучше ли оставить на месте? Зачем узнавать? Будет ужасно, если всё окажется правдой. А если нет — так незачем и беспокоиться. Ну а если по роковой случайности чей-либо посторонний глаз заглянет за этот экран и увидит страшную перемену? Как быть, если Бэзил придёт и захочет взглянуть на свою работу? А Бэзил непременно захочет… Нет, портрет во что бы то ни стало надо рассмотреть ещё раз — и немедленно. Нет ничего тягостнее мучительной неизвестности.",
+ emo:"Вход через тревогу — не прыгать к главному.",
+ yb:"",borz:"[0:00] “Нет ничего тягостнее мучительной неизвестности” — 7 сек, как стена.",
+ words:[["тягостнее","мучительнее, тяжелее"]]},
+
+{act:3,who:"author",em:"🔑",assoc:"КЛЮЧ",cue:"Запер двери — лицом к лицу с собой",
+ txt:"Дориан встал и запер на ключ обе двери. Он хотел, по крайней мере, быть один, когда увидит свой позор. Он отодвинул в сторону экран и стоял теперь лицом к лицу с самим собой.",
+ emo:"Ритуал — медленно, шаг за шагом.",yb:"",borz:"[0:32]",words:[]},
+
+{act:3,who:"author",em:"😱",assoc:"ИЗМЕНИЛСЯ",cue:"Да, сомнений нет — портрет изменился",
+ txt:"Да, сомнений быть не могло: портрет изменился.",
+ emo:"Безэмоциональность страшнее всего — констатация.",
+ yb:"",borz:"[0:50] три удара, микропаузы; после — ~2с тишины (пауза ужаса).",words:[]},
+
+{act:3,who:"author",em:"⚗️",assoc:"ВОПРОСЫ",cue:"Сродство души и атомов краски? Или страшнее?",
+ txt:"Позднее Дориан часто и всякий раз с немалым удивлением вспоминал, что в первые минуты он смотрел на портрет с почти объективным интересом. Казалось невероятным, что такая перемена может произойти, — а между тем она была налицо. Неужели же есть какое-то непостижимое сродство между его душой и химическими атомами, образующими на полотне формы и краски? Возможно ли, что эти атомы отражают на полотне все движения души, делают её сны явью? Или тут кроется иная, ещё более страшная причина?",
+ emo:"Настоящие вопросы — растерянность, не риторика.",
+ yb:"",borz:"[1:00] вопросы с подъёмом, будто ждёт ответа.",
+ words:[["сродство","внутренняя связь, родство"],["непостижимое","недоступное пониманию"]]},
+
+{act:3,who:"author",em:"🛋️",assoc:"УЖАС-ВЗГЛЯД",cue:"Лёг на кушетку — с ужасом смотрит",
+ txt:"Задрожав при этой мысли, Дориан отошёл и снова лёг на кушетку. Отсюда он с ужасом, не отрываясь, смотрел на портрет.",
+ emo:"Тело спало, но взгляд прикован — тише, но не отпускает.",yb:"",borz:"",words:[]},
+
+{act:3,who:"author",em:"🤍",assoc:"НАДЕЖДА-СИБИЛА",cue:"Портрет научил: исправить вину перед Сибилой",
+ txt:"Утешало его только сознание, что кое-чему портрет уже научил его. Он помог понять, как несправедлив, как жесток он был к Сибиле Вэйн. Исправить это ещё не поздно. Сибила станет его женой. Его эгоистичная любовь под её влиянием преобразится в чувство более благородное, и портрет, написанный Бэзилом, всегда будет указывать ему путь в жизни.",
+ emo:"Проблеск надежды — чуть теплее, светлее.",yb:"",borz:"",words:[]},
+
+{act:3,who:"author",em:"☠️",assoc:"ПОГУБИТЬ ДУШУ",cue:"Видимый символ греха — можно погубить душу",
+ txt:"В жизни существуют наркотики против угрызений совести, средства, усыпляющие нравственное чутьё. Но здесь, перед его глазами, — видимый символ разложения, наглядные последствия греха. И всегда будет перед ним это доказательство, что человек способен погубить собственную душу.",
+ emo:"Рифма с финалом II («душу бы отдал»). Связь трёх отрывков.",yb:"",borz:"",
+ words:[["угрызений","мучений совести"],["разложения","распада, гниения"]]},
+
+{act:3,who:"author",em:"🕒",assoc:"ТРИ ЧАСА",cue:"Финал всего: Пробило три часа",
+ txt:"Пробило три часа.",
+ emo:"Не играть. Сухо, ровно — и тишина. Конец.",
+ yb:"",borz:"[3:07] после паузы ~1.4с — три слова без эмоции. Точка в конце ночи.",words:[]}
+];
+
+// Каверзные вопросы на понимание (тип «смысл»)
+const DEEP=[
+ {q:"Почему лорд Генри в Отрывке I — НЕ старик, хотя говорит о старости?",a:"Он светский аристократ средних лет. Он сам потерял молодость и потому знает ей цену — говорит с высоты прожитого, а не как старик-ворчун."},
+ {q:"Кому на самом деле адресован весь монолог Генри в салоне?",a:"ЗАЛУ. «Он ему говорит, но у вас зал — вы это залу.» Каждая большая мысль уходит через зрителей."},
+ {q:"Зачем пауза ПЕРЕД фразой «А красота…»?",a:"Это интрига. «Люди должны запомнить метафору и уйти с ней.» Черчилль: есть что сказать — не торопись, тебя будут слушать."},
+ {q:"Как надо читать «Каждый уходящий месяц…» и почему?",a:"Легко, на иронии. Текст жёсткий — а подаёшь легко, в противовес, и тогда ещё страшнее. «Да-да-да» в лоб — это бред."},
+ {q:"Что общего между перечислением увядания в Отрывке I и в Отрывке II?",a:"Это одно и то же. В I Генри ПУГАЕТ Дориана старостью; во II Дориан говорит это уже САМ СЕБЕ, глядя на портрет. Тема сомкнулась."},
+ {q:"Какая фраза — кульминация всей вещи и как её подать?",a:"«Душу бы отдал за это.» Главное слово — «что он и сделает». Сказать страшно, на выдохе, как приговор — чтобы зритель перекрестился."},
+ {q:"Чем перевод Урнова отличается от Абкиной?",a:"Более суровый и мужской. Текст читаешь по Урнову, а подачу (паузы, удары) берёшь у Борзунова, который звучит Абкину."},
+ {q:"Что символизирует портрет в финале (Отрывок III)?",a:"Душу Дориана. Холст отражает то, что внутри. «Человек способен погубить собственную душу» — рифма с «душу бы отдал»."},
+ {q:"Как объявлять три части на вечере?",a:"Не «Лорд Генри», а по темам: «О красоте и молодости» → (музыка) → «Желание» → «Перемена»."},
+ {q:"Главное напутствие Юлии Борисовны — в одном предложении?",a:"Вложить подтекст: не почитать текст под картинку, а копнуть смысл так, чтобы у зрителя случился внутренний катарсис."},
+ {q:"Почему «Красота неоспорима» — это удар?",a:"Перед ней длинный поэтичный образ (луна) → пауза 1.8с → три коротких слова. Разгон → стоп → удар. Три слова весят больше абзаца."},
+ {q:"Что делает Дориан физически в момент «При первом взгляде на портрет»?",a:"Невольно делает шаг НАЗАД — будто испугался, — и тут же вспыхивает от удовольствия. Испуг → восторг."}
+];
+
+/* ===================== ДВИЖОК ===================== */
+const LS="dorian_trainer_v1";
+let state=JSON.parse(localStorage.getItem(LS)||"{}"); // {box:{idx:1..5}}
+if(!state.box)state.box={};
+function save(){localStorage.setItem(LS,JSON.stringify(state))}
+let curSeg="all";
+
+function segFilter(i){return curSeg==="all"||DECK[i].act==+curSeg}
+function deckIdx(){const a=[];DECK.forEach((c,i)=>{if(segFilter(i))a.push(i)});return a}
+function learnedCount(){let n=0;deckIdx().forEach(i=>{if((state.box[i]||0)>=3)n++});return n}
+
+function updHome(){
+  const idx=deckIdx();
+  document.getElementById("total").textContent=idx.length;
+  const l=learnedCount();
+  document.getElementById("learned").textContent=l;
+  document.getElementById("pfill").style.width=(idx.length?Math.round(l/idx.length*100):0)+"%";
+  const sb=state.sprintBest||0,el=document.getElementById("sprint-best");
+  if(el)el.textContent=sb?("рекорд: "+sb+" за минуту"):"сколько вспомнишь за 60 секунд";
+}
+
+function show(id){
+  if(id!=="sprint")clearInterval(spInt);
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));
+  document.getElementById(id).classList.add("on");
+  window.scrollTo(0,0);
+  if(id==="home")updHome();
+  if(id==="words")renderWords();
+}
+
+// выбор отрывка
+document.getElementById("segpick").addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  curSeg=b.dataset.seg;
+  document.querySelectorAll("#segpick button").forEach(x=>x.classList.remove("sel"));
+  b.classList.add("sel");updHome();
+});
+
+/* ——— КАРТОЧКИ ——— */
+let queue=[],qpos=0,flipped=false;
+const WHO={henry:"Лорд Генри",dorian:"Дориан",bezil:"Бэзил",author:"Автор"};
+
+function startCards(){
+  // порядок: сначала невыученные (box<3), внутри — по порядку текста
+  const idx=deckIdx();
+  queue=idx.slice().sort((a,b)=>((state.box[a]||0)>=3)-((state.box[b]||0)>=3));
+  qpos=0;
+  document.getElementById("cards-title").textContent= curSeg==="all"?"Карточки · все":"Карточки · отрывок "+rom(curSeg);
+  show("cards");renderCard();
+}
+function rom(n){return {"1":"I","2":"II","3":"III"}[n]||n}
+
+function renderCard(){
+  if(qpos>=queue.length){return finishCards()}
+  flipped=false;
+  const card=document.getElementById("card");card.classList.remove("flip");
+  const i=queue[qpos],c=DECK[i];
+  document.getElementById("cards-count").textContent=(qpos+1)+" / "+queue.length;
+  document.getElementById("rate").classList.add("hidden");
+  document.getElementById("front").className="face front "+c.who;
+  document.getElementById("front").innerHTML=
+    '<div class="badge"><span class="dot"></span><span class="who">'+WHO[c.who]+' · отрывок '+rom(c.act)+'</span></div>'+
+    '<div class="assoc"><div class="em">'+c.em+'</div><div class="word">'+c.assoc+'</div><div class="cue">'+c.cue+'</div></div>'+
+    '<div class="tap">нажми → вспомни текст</div>';
+  let lays="";
+  if(c.emo)lays+='<div class="lay e"><span class="t">🎭 эмоция</span>'+c.emo+'</div>';
+  if(c.yb)lays+='<div class="lay y"><span class="t">🎓 Юлия Б.</span>'+c.yb+'</div>';
+  if(c.borz)lays+='<div class="lay b"><span class="t">🎙 Борзунов</span>'+c.borz+'</div>';
+  if(c.words&&c.words.length)lays+='<div class="lay w"><span class="t">📖 слова</span>'+c.words.map(w=>'<b>'+w[0]+'</b> — '+w[1]).join('; ')+'</div>';
+  document.getElementById("back").className="face back "+c.who;
+  document.getElementById("back").innerHTML=
+    '<div class="badge"><span class="dot"></span><span class="who">'+WHO[c.who]+' · отрывок '+rom(c.act)+'</span></div>'+
+    '<div class="txt">'+c.txt+'</div>'+'<div class="lays">'+lays+'</div>';
+}
+function flipCard(){
+  flipped=!flipped;
+  document.getElementById("card").classList.toggle("flip",flipped);
+  document.getElementById("rate").classList.toggle("hidden",!flipped);
+}
+function rate(good){
+  const i=queue[qpos];
+  let box=state.box[i]||0;
+  if(good){box=Math.min(5,box+1)}else{box=Math.max(0,box-1);queue.push(i)} // не помню → вернуть в конец
+  state.box[i]=box;save();
+  qpos++;renderCard();
+}
+function finishCards(){
+  document.getElementById("cards-count").textContent="";
+  document.getElementById("rate").classList.add("hidden");
+  document.getElementById("card").classList.remove("flip");
+  document.getElementById("front").className="face front";
+  document.getElementById("front").innerHTML=
+    '<div class="done"><div class="big">🎉</div><h3>Круг пройден!</h3>'+
+    '<p>Выучено '+learnedCount()+' из '+deckIdx().length+'. Повтори ещё круг или иди на экзамен.</p>'+
+    '<button class="btn-primary" onclick="startCards()">↻ Ещё круг</button>'+
+    '<button class="btn-primary" style="background:var(--surface);color:var(--gold-soft);border:1px solid var(--gold)" onclick="startQuiz()">🎯 На экзамен</button>'+
+    '<br><button class="reset" onclick="show(\'home\')">домой</button></div>';
+  document.getElementById("back").innerHTML="";
+  updHome();
+}
+
+/* ——— ЭКЗАМЕН ——— */
+let quizList=[],qi=0;
+const ACTNAME={1:"I — «О красоте и молодости» (Мастерская)",2:"II — «Желание»",3:"III — «Перемена»"};
+const ACTNEXT={1:"Отрывок II «Желание» — портрет закончен",2:"Отрывок III «Перемена» — финал",3:"конец вещи (Пробило три часа)"};
+function nextInAct(i){for(let j=i+1;j<DECK.length;j++){if(DECK[j].act===DECK[i].act)return j;if(DECK[j].act>DECK[i].act)break}return -1}
+function prevInAct(i){for(let j=i-1;j>=0;j--){if(DECK[j].act===DECK[i].act)return j;if(DECK[j].act<DECK[i].act)break}return -1}
+function partLabel(i){
+  const same=[];DECK.forEach((c,k)=>{if(c.act===DECK[i].act)same.push(k)});
+  const p=same.indexOf(i),n=same.length;
+  if(p===0)return"Самое НАЧАЛО отрывка "+rom(DECK[i].act);
+  if(p===n-1)return"ФИНАЛ отрывка "+rom(DECK[i].act);
+  if(p<n/3)return"Начало отрывка "+rom(DECK[i].act);
+  if(p>2*n/3)return"Ближе к финалу отрывка "+rom(DECK[i].act);
+  return"Середина отрывка "+rom(DECK[i].act);
+}
+function buildQuiz(){
+  const idx=deckIdx();const out=[];
+  idx.forEach(i=>{
+    const c=DECK[i];
+    out.push({small:"Вспомни текст по образу",q:c.em+" "+c.assoc+" — "+c.cue,a:c.txt});
+    // ориентация в тексте:
+    out.push({small:"С какого это отрывка?",q:'«'+short(c.txt)+'»',a:"Отрывок "+ACTNAME[c.act]});
+    out.push({small:"Какая это часть отрывка?",q:'«'+short(c.txt)+'»',a:partLabel(i)});
+    out.push({small:"О чём этот кусок? (одним образом)",q:'«'+short(c.txt)+'»',a:c.em+" "+c.assoc+" — "+c.cue});
+    const nx=nextInAct(i);
+    out.push({small:"Что идёт СРАЗУ ПОСЛЕ?",q:'«'+short(c.txt)+'»',a: nx>=0 ? '«'+short(DECK[nx].txt)+'»' : "Это финал — дальше "+ACTNEXT[c.act]});
+    const pv=prevInAct(i);
+    if(pv>=0)out.push({small:"Что идёт ПЕРЕД этим куском?",q:'«'+short(c.txt)+'»',a:'«'+short(DECK[pv].txt)+'»'});
+    if(c.emo)out.push({small:"Какая эмоция / действие?",q:'«'+short(c.txt)+'»',a:c.emo});
+    if(c.yb)out.push({small:"Что говорила Юлия Борисовна?",q:'«'+short(c.txt)+'»',a:c.yb});
+    if(c.words&&c.words.length)c.words.forEach(w=>out.push({small:"Что значит слово?",q:w[0],a:w[1]}));
+  });
+  DEEP.forEach(d=>out.push({small:"Каверзный вопрос",q:d.q,a:d.a}));
+  // перемешать
+  for(let k=out.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[out[k],out[j]]=[out[j],out[k]]}
+  return out;
+}
+function short(t){t=t.replace(/^—\s*/,'');return t.length>90?t.slice(0,88)+'…':t}
+function startQuiz(){quizList=buildQuiz();qi=0;show("quiz");renderQuiz()}
+function renderQuiz(){
+  if(qi>=quizList.length){
+    document.getElementById("qwrap").innerHTML='<div class="done"><div class="big">✅</div><h3>Экзамен пройден</h3><p>'+quizList.length+' вопросов. Сделай ещё круг или вернись к карточкам.</p><button class="btn-primary" onclick="startQuiz()">↻ Ещё экзамен</button><button class="btn-primary" style="background:var(--surface);color:var(--gold-soft);border:1px solid var(--gold)" onclick="startCards()">🃏 Карточки</button><br><button class="reset" onclick="show(\'home\')">домой</button></div>';
+    document.getElementById("quiz-count").textContent="";return;
+  }
+  const it=quizList[qi];
+  document.getElementById("quiz-count").textContent=(qi+1)+" / "+quizList.length;
+  document.getElementById("qwrap").innerHTML=
+    '<div class="qtype">экзамен</div>'+
+    '<div class="qbox"><div class="qq"><span class="small">'+it.small+'</span>'+it.q+
+    '<div class="qa" id="qa">'+it.a+'</div></div></div>'+
+    '<button class="reveal" id="rev" onclick="revealA()">Показать ответ</button>';
+}
+function revealA(){
+  document.getElementById("qa").classList.add("show");
+  const r=document.getElementById("rev");
+  r.textContent="Дальше →";r.onclick=()=>{qi++;renderQuiz()};
+}
+
+/* ——— НАИЗУСТЬ ——— */
+let rcList=[],rci=0;
+function startRecall(){rcList=deckIdx();rci=0;show("recall");renderRecall()}
+function renderRecall(){
+  if(rci>=rcList.length){
+    document.getElementById("rc-count").textContent="";
+    document.getElementById("rc-wrap").innerHTML='<div class="done"><div class="big">🏆</div><h3>Весь блок — наизусть!</h3><p>Прошёл '+rcList.length+' кусков. Прогони ещё раз или иди на экзамен.</p><button class="btn-primary" onclick="startRecall()">↻ Ещё раз</button><button class="btn-primary" style="background:var(--surface);color:var(--gold-soft);border:1px solid var(--gold)" onclick="startQuiz()">🎯 Экзамен</button><br><button class="reset" onclick="show(\'home\')">домой</button></div>';
+    return;
+  }
+  const c=DECK[rcList[rci]];
+  document.getElementById("rc-count").textContent=(rci+1)+" / "+rcList.length;
+  document.getElementById("rc-wrap").innerHTML=
+    '<div class="rc-cue"><div class="who">'+WHO[c.who]+' · отрывок '+rom(c.act)+'</div><div class="em">'+c.em+'</div><div class="word">'+c.assoc+'</div>'+
+    '<div class="more" id="rcmore">'+c.cue+'</div>'+
+    '<button class="hintbtn" id="rchint" onclick="document.getElementById(\'rcmore\').classList.add(\'show\');this.style.display=\'none\'">нужна подсказка ⌄</button></div>'+
+    '<textarea class="rc" id="rcin" placeholder="напиши текст по памяти… (или проговори вслух и нажми «сказал вслух»)"></textarea>'+
+    '<div class="rc-actions"><button class="rc-voice" onclick="rcShow()">🎤 сказал вслух</button><button class="rc-check" onclick="rcCheck()">Проверить</button></div>'+
+    '<div class="rc-result" id="rcres"></div>';
+}
+function wordTokens(s){return (s||"").replace(/^—\s*/,'').match(/[A-Za-zА-Яа-яЁё0-9]+|[^A-Za-zА-Яа-яЁё0-9]+/g)||[]}
+function isWord(t){return /[A-Za-zА-Яа-яЁё0-9]/.test(t)}
+function nw(t){return t.toLowerCase().replace(/ё/g,'е')}
+function lcsMatch(a,b){ // boolean[] по a — какие слова попали
+  const n=a.length,m=b.length,dp=[];
+  for(let i=0;i<=n;i++)dp.push(new Array(m+1).fill(0));
+  for(let i=1;i<=n;i++)for(let j=1;j<=m;j++)dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]+1:Math.max(dp[i-1][j],dp[i][j-1]);
+  const matched=new Array(n).fill(false);let i=n,j=m;
+  while(i>0&&j>0){if(a[i-1]===b[j-1]){matched[i-1]=true;i--;j--}else if(dp[i-1][j]>=dp[i][j-1])i--;else j--}
+  return matched;
+}
+function rcCheck(){
+  const c=DECK[rcList[rci]];
+  const input=document.getElementById("rcin").value;
+  const etTok=wordTokens(c.txt);
+  const etWords=etTok.filter(isWord).map(nw);
+  const inWords=wordTokens(input).filter(isWord).map(nw);
+  const matched=lcsMatch(etWords,inWords);
+  let mi=0,hit=0,html="";
+  etTok.forEach(t=>{
+    if(isWord(t)){const ok=matched[mi++];if(ok)hit++;html+='<span class="'+(ok?'hit':'miss')+'">'+t+'</span>'}
+    else html+=t;
+  });
+  const tot=etWords.length,pct=tot?Math.round(hit/tot*100):0;
+  const col=pct>=90?'var(--ok)':pct>=60?'var(--gold)':'var(--no)';
+  const verdict=pct>=90?'отлично — почти дословно!':pct>=60?'хорошо, добей подчёркнутое':'ещё повтори этот кусок';
+  const res=document.getElementById("rcres");res.className="rc-result show";
+  res.innerHTML='<div class="rc-score" style="color:'+col+'">'+pct+'%<small>'+hit+' из '+tot+' слов · '+verdict+'</small></div>'+
+    '<div class="rc-diff">'+html+'</div>'+
+    '<p class="hint" style="text-align:left;margin:8px 2px 0">Зелёным — попал, <span style="color:var(--no)">подчёркнутым</span> — пропустил или переврал.</p>'+
+    '<button class="rc-next" onclick="rcNext()">Дальше →</button>';
+  res.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function rcShow(){
+  const c=DECK[rcList[rci]];
+  const res=document.getElementById("rcres");res.className="rc-result show";
+  res.innerHTML='<div class="rc-score" style="color:var(--gold)">Эталон<small>сверь — всё ли проговорил точно</small></div>'+
+    '<div class="rc-diff">'+c.txt.replace(/^—\s*/,'')+'</div>'+
+    '<button class="rc-next" onclick="rcNext()">Дальше →</button>';
+  res.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function rcNext(){rci++;renderRecall()}
+
+/* ——— ПРОПУСКИ (cloze) ——— */
+let clList=[],cli=0;
+const STOP=new Set(["который","которые","которым","которой","когда","чтобы","потому","этого","этому","это","того","тоже","всё","все","как","что","так","для","вас","вам","нам","его","ему","или","над","под","при","там","тут","уже","ещё","бы","же","ли","не","но","на","во","со","вот","вы","он"]);
+function startCloze(){clList=deckIdx();cli=0;show("cloze");renderCloze()}
+function renderCloze(){
+  const act=document.getElementById("cl-actions");
+  if(cli>=clList.length){
+    document.getElementById("cl-count").textContent="";act.style.display="none";
+    document.getElementById("cl-card").innerHTML='<div class="done"><div class="big">✅</div><h3>Пропуски пройдены</h3><p>Прошёл '+clList.length+' фраз.</p><button class="btn-primary" onclick="startCloze()">↻ Ещё раз</button><br><button class="reset" onclick="show(\'home\')">домой</button></div>';
+    return;
+  }
+  act.style.display="flex";
+  const c=DECK[clList[cli]];
+  document.getElementById("cl-count").textContent=(cli+1)+" / "+clList.length;
+  const tok=wordTokens(c.txt),cand=[];
+  tok.forEach((t,k)=>{if(isWord(t)&&nw(t).length>4&&!STOP.has(nw(t)))cand.push(k)});
+  const sh=cand.slice();for(let i=sh.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sh[i],sh[j]]=[sh[j],sh[i]]}
+  const pick=new Set(sh.slice(0,Math.max(1,Math.round(cand.length*0.35))));
+  let html="";
+  tok.forEach((t,k)=>{
+    if(isWord(t)&&pick.has(k))html+='<span class="gap" data-w="'+t+'" onclick="this.classList.add(\'open\');this.textContent=this.dataset.w">'+'_'.repeat(Math.max(4,t.length))+'</span>';
+    else html+=t;
+  });
+  document.getElementById("cl-card").innerHTML=
+    '<div class="badge '+c.who+'"><span class="dot"></span><span class="who">'+WHO[c.who]+' · отрывок '+rom(c.act)+'</span></div>'+
+    '<div class="cl-text">'+html+'</div>'+
+    '<div class="sp-tap">тап по дырке — открыть слово</div>';
+}
+function clShowAll(){document.querySelectorAll("#cl-card .gap:not(.open)").forEach(g=>{g.classList.add("open");g.textContent=g.dataset.w})}
+function clNext(){cli++;renderCloze()}
+
+/* ——— СПРИНТ за минуту ——— */
+let spQ=[],spPos=0,spScore=0,spTime=60,spInt=null;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function startSprint(){
+  spQ=shuffle(deckIdx().slice());spPos=0;spScore=0;spTime=60;
+  document.getElementById("sp-rate").classList.remove("hidden");
+  document.getElementById("sp-fill").style.width="100%";
+  const tm=document.getElementById("sp-time");tm.textContent="60";tm.classList.remove("low");
+  show("sprint");renderSprint();
+  clearInterval(spInt);
+  spInt=setInterval(()=>{
+    spTime--;tm.textContent=spTime;
+    document.getElementById("sp-fill").style.width=(spTime/60*100)+"%";
+    if(spTime<=10)tm.classList.add("low");
+    if(spTime<=0)endSprint();
+  },1000);
+}
+function stopSprint(){clearInterval(spInt)}
+function renderSprint(){
+  if(spPos>=spQ.length){spQ=shuffle(deckIdx().slice());spPos=0}
+  const c=DECK[spQ[spPos]];
+  document.getElementById("sp-score").textContent="вспомнил: "+spScore;
+  document.getElementById("sp-card").className="sp-card "+c.who;
+  document.getElementById("sp-card").innerHTML=
+   '<div class="badge"><span class="dot"></span><span class="who">'+WHO[c.who]+' · отрывок '+rom(c.act)+'</span></div>'+
+   '<div class="assoc"><div class="em">'+c.em+'</div><div class="word">'+c.assoc+'</div><div class="cue">'+c.cue+'</div></div>'+
+   '<div class="sp-text" id="sp-text">'+c.txt+'</div>'+
+   '<div class="sp-tap" id="sp-taphint">тап — подсмотреть текст</div>';
+}
+function spReveal(){const t=document.getElementById("sp-text");if(t)t.classList.add("show");const h=document.getElementById("sp-taphint");if(h)h.style.display="none"}
+function spMark(good){if(good)spScore++;spPos++;renderSprint()}
+function endSprint(){
+  clearInterval(spInt);
+  const best=state.sprintBest||0,isRec=spScore>best;
+  if(isRec){state.sprintBest=spScore;save()}
+  document.getElementById("sp-rate").classList.add("hidden");
+  document.getElementById("sp-card").className="sp-card";
+  document.getElementById("sp-card").innerHTML=
+   '<div class="done"><div class="big">'+(isRec?'🏆':'⏱')+'</div><h3>'+spScore+' за минуту</h3>'+
+   '<p>'+(isRec?'Новый рекорд! Было: '+best:'Твой рекорд: '+(state.sprintBest||0))+'</p>'+
+   '<button class="btn-primary" onclick="startSprint()">↻ Ещё раз</button><br><button class="reset" onclick="show(\'home\')">домой</button></div>';
+  document.getElementById("sp-time").textContent="0";
+}
+
+/* ——— СЛОВА ——— */
+function renderWords(){
+  const seen={},list=[];
+  deckIdx().forEach(i=>DECK[i].words&&DECK[i].words.forEach(w=>{if(!seen[w[0]]){seen[w[0]]=1;list.push(w)}}));
+  document.getElementById("words-count").textContent=list.length+" слов";
+  document.getElementById("wlist").innerHTML=list.map((w,k)=>
+    '<div class="wcard q" onclick="this.querySelector(\'.def\').classList.toggle(\'hide\')">'+
+    '<b>'+w[0]+'</b><div class="def hide">'+w[1]+'</div><div class="tip">нажми — проверь себя</div></div>').join('');
+}
+
+/* ——— сброс ——— */
+function resetAll(){if(confirm("Сбросить весь прогресс заучивания?")){state={box:{}};save();updHome()}}
+
+/* свайп влево/вправо на карточке */
+let tx=0;
+document.getElementById("card").addEventListener("touchstart",e=>{tx=e.touches[0].clientX},{passive:true});
+document.getElementById("card").addEventListener("touchend",e=>{
+  const dx=e.changedTouches[0].clientX-tx;
+  if(Math.abs(dx)>60&&flipped){rate(dx>0)} // свайп вправо=помню, влево=ещё раз (после переворота)
+},{passive:true});
+
+updHome();
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+  }
+</script>
+</body>
+</html>
