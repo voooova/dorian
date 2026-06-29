@@ -170,6 +170,8 @@
   /* ПРОПУСКИ */
   .cl-card{flex:1;display:flex;flex-direction:column;border-radius:20px;border:1px solid var(--line);
     background:linear-gradient(165deg,var(--surface2),var(--surface));padding:22px 20px;overflow-y:auto;min-height:54vh}
+  .cl-act{margin:2px 0 4px;font-size:1.05rem;font-weight:800;color:var(--gold-soft)}
+  .cl-act span{font-weight:400;font-style:italic;color:var(--ink-soft);font-size:.92rem}
   .cl-text{font-family:Georgia,serif;font-size:1.3rem;line-height:1.7;color:var(--ink);margin:auto 0}
   .gap{display:inline-block;min-width:54px;border-bottom:2px solid var(--gold);color:transparent;text-align:center;cursor:pointer;border-radius:3px}
   .gap.open{color:var(--ok);border-bottom-color:var(--ok)}
@@ -232,6 +234,24 @@
       <li><b>«Не вспомнил» — честно жми «Ещё раз»</b> — карточка вернётся, пока не закрепишь.</li>
       <li><b>Цепляй образ</b> — каждый блок = картинка-крючок, они идут цепочкой-маршрутом.</li>
       <li><b>Короткими подходами</b> — 15–20 мин, перерыв, повтор. Перед сном — ещё раз.</li>
+    </ol>
+  </div>
+
+  <div class="panel">
+    <h3>Фишки и прикольчики (разные способы)</h3>
+    <ol>
+      <li><b>Учи действие, а не слова.</b> Помни ЧТО делаешь (глагол: соблазняю, пугаю) — слова всплывут сами. Это главный актёрский секрет.</li>
+      <li><b>Жест на каждый кусок.</b> Привяжи фразу к движению руки/тела. Моторная память не подводит на сцене.</li>
+      <li><b>Снежный ком.</b> Фраза 1; потом 1+2; потом 1+2+3… Каждый раз с самого начала.</li>
+      <li><b>Первые буквы.</b> Выпиши первые буквы каждого предложения абзаца — вспоминай по ним, как по шпаргалке.</li>
+      <li><b>Запиши свой голос.</b> Слушай на повторе в наушниках — особенно засыпая.</li>
+      <li><b>Расскажи коту / стене / другу.</b> Перескажи своими словами, потом вернись к точному тексту.</li>
+      <li><b>Ходи и учи.</b> Текст под шаги запоминается крепче, чем сидя.</li>
+      <li><b>Дурацкие голоса.</b> Прочти как рэп, как диктор новостей, шёпотом, басом. Мозг любит игру — текст въедается.</li>
+      <li><b>Дворец памяти.</b> Расставь образы-крючки по своей комнате; идёшь взглядом по маршруту — всплывают куски.</li>
+      <li><b>Перепиши рукой.</b> 1–2 раза от руки — рука помнит то, что не помнит голова.</li>
+      <li><b>Прогон с конца.</b> Проговори куски в обратном порядке — сразу вылезут слабые места.</li>
+      <li><b>Вечер + утро.</b> Повторил перед сном → мозг закрепил во сне → утром быстрый прогон. Магия.</li>
     </ol>
   </div>
 
@@ -937,8 +957,9 @@ function renderCloze(){
   });
   document.getElementById("cl-card").innerHTML=
     '<div class="badge '+c.who+'"><span class="dot"></span><span class="who">'+WHO[c.who]+' · отрывок '+rom(c.act)+'</span></div>'+
+    (c.verb?'<div class="cl-act">я '+c.verb.toLowerCase()+(c.emo?' — <span>'+c.emo+'</span>':'')+'</div>':'')+
     '<div class="cl-text">'+html+'</div>'+
-    '<div class="sp-tap">тап по дырке — открыть слово</div>';
+    '<div class="sp-tap">тап по дырке — открыть слово · читай вслух с этим действием</div>';
 }
 function clShowAll(){document.querySelectorAll("#cl-card .gap:not(.open)").forEach(g=>{g.classList.add("open");g.textContent=g.dataset.w})}
 function clNext(){cli++;renderCloze()}
