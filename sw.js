@@ -1,5 +1,5 @@
 // Service Worker — офлайн-кэш тренажёра Дориан
-const CACHE = 'dorian-v10';
+const CACHE = 'dorian-v11';
 const ASSETS = [
   './',
   './index.html',

@@ -111,6 +111,26 @@
   .run.tekst{color:var(--ink-soft)}
   .run.partner{background:rgba(154,216,187,.14);box-shadow:0 0 0 .12em rgba(154,216,187,.14)}
 
+  /* переключатель Текст/График */
+  .sc-mode{display:flex;gap:8px;margin:2px 0 14px}
+  .sc-mode button{flex:1;background:var(--surface);border:1px solid var(--line);color:var(--ink-soft);
+    border-radius:11px;padding:9px 4px;font-size:.86rem;font-weight:600}
+  .sc-mode button.sel{background:var(--gold);color:#1a130d;border-color:var(--gold)}
+
+  /* ГРАФИК адресата — волна по уровням */
+  .sc-graph-wrap{display:flex;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface)}
+  .sc-lanes{flex:0 0 84px;display:flex;flex-direction:column;border-right:1px solid var(--line)}
+  .sc-lane-label{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;
+    font-size:.66rem;font-weight:800;letter-spacing:.02em;line-height:1.25;padding:4px 3px}
+  .sc-lane-label.zal{color:#9ad0ea;background:#13242d}
+  .sc-lane-label.sebe{color:#c7a8e0;background:#241a2e}
+  .sc-lane-label.tekst{color:#b8b0a4;background:#221d18}
+  .sc-lane-label.partner{color:#9ad8bb;background:#15241d}
+  .sc-graph-scroll{flex:1;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
+  .sc-graph-scroll svg{display:block}
+  .sc-node-card{cursor:pointer}
+  .sc-node-label{font-family:-apple-system,sans-serif;font-weight:700}
+
   .back .txt{font-family:Georgia,serif;font-size:1.32rem;line-height:1.55;color:var(--ink);margin:auto 0}
   .back .txt u{text-decoration:none;border-bottom:2px solid var(--gold)}
   .lays{margin-top:14px;display:flex;flex-direction:column;gap:7px}
@@ -418,7 +438,21 @@
     <button data-seg="2">II</button>
     <button data-seg="3">III</button>
   </div>
-  <div id="score-body" class="score-body"></div>
+  <div class="sc-mode" id="score-mode">
+    <button data-mode="graph" class="sel">📈 График</button>
+    <button data-mode="text">📖 Текст</button>
+  </div>
+  <div id="score-graph-wrap" class="sc-graph-wrap">
+    <div class="sc-lanes">
+      <div class="sc-lane-label zal">🔵 В ЗАЛ</div>
+      <div class="sc-lane-label sebe">🟣 СЕБЕ</div>
+      <div class="sc-lane-label tekst">⚪ РАССКАЗ</div>
+      <div class="sc-lane-label partner">💬 ПАРТНЁРУ</div>
+    </div>
+    <div class="sc-graph-scroll" id="score-graph"></div>
+  </div>
+  <p class="hint" id="score-graph-hint">Слева направо — порядок текста. Тапни узел — откроется карточка.</p>
+  <div id="score-body" class="score-body" style="display:none"></div>
 </section>
 
 <!-- ░░░ WORDS ░░░ -->
@@ -916,9 +950,14 @@ const SPLIT_RUNS={
    {t:" как одними руководит добродетель, другими — совесть и всеми людьми — страх перед богом.",dir:"зал"}
  ]
 };
-function startScore(){show("score");renderScore()}
+let scoreMode="graph";
+function startScore(){show("score");setScoreMode(scoreMode);renderScore()}
 function renderScore(){
   document.getElementById("score-count").textContent="отрывок "+rom(scoreAct);
+  renderScoreText();
+  renderScoreGraph();
+}
+function renderScoreText(){
   let html='<div class="scact">Отрывок '+rom(scoreAct)+' — '+ACT_TITLE[scoreAct]+'</div>';
   DECK.forEach(c=>{
     if(c.act!==scoreAct)return;
@@ -930,8 +969,65 @@ function renderScore(){
     }
   });
   document.getElementById("score-body").innerHTML=html;
-  window.scrollTo(0,0);
 }
+// порядок дорожек сверху вниз — должен совпадать с разметкой .sc-lane-label в HTML
+const LANE_ORDER=["зал","себе","текст","партнёр"];
+const LANE_FILL={"зал":"#3f7d96","себе":"#6b4f86","текст":"#5a4d40","партнёр":"#3f7d63"};
+const LANE_SHORT={"зал":"ЗАЛУ","себе":"СЕБЕ","текст":"РАССКАЗ","партнёр":"ПАРТНЁРУ"};
+function renderScoreGraph(){
+  const laneH=80, nTotal=LANE_ORDER.length*laneH;
+  const nodeGap=100, marginX=64;
+  // строим узлы: для карточек со SPLIT_RUNS — два узла подряд
+  const nodes=[];
+  DECK.forEach((c,i)=>{
+    if(c.act!==scoreAct)return;
+    if(SPLIT_RUNS[c.assoc]){
+      SPLIT_RUNS[c.assoc].forEach((r,k)=>nodes.push({i,em:c.em,label:k===0?c.assoc:"→ "+LANE_SHORT[r.dir],dir:r.dir}));
+    }else{
+      nodes.push({i,em:c.em,label:c.assoc,dir:AUD[c.assoc]||"текст"});
+    }
+  });
+  const w=marginX*2+(nodes.length-1)*nodeGap;
+  let svg='<svg viewBox="0 0 '+w+' '+nTotal+'" width="'+w+'" height="'+nTotal+'" xmlns="http://www.w3.org/2000/svg">';
+  // фон-полосы дорожек
+  LANE_ORDER.forEach((dir,li)=>{
+    svg+='<rect x="0" y="'+(li*laneH)+'" width="'+w+'" height="'+laneH+'" fill="'+LANE_FILL[dir]+'" opacity="'+(li%2?0.05:0.09)+'"/>';
+  });
+  for(let li=1;li<LANE_ORDER.length;li++){
+    svg+='<line x1="0" y1="'+(li*laneH)+'" x2="'+w+'" y2="'+(li*laneH)+'" stroke="rgba(255,255,255,.06)" stroke-width="1"/>';
+  }
+  const pts=nodes.map((n,idx)=>{
+    const x=marginX+idx*nodeGap;
+    const y=LANE_ORDER.indexOf(n.dir)*laneH+laneH/2;
+    return {x,y,n};
+  });
+  // соединительная линия-волна
+  if(pts.length>1){
+    let d="M"+pts[0].x+","+pts[0].y;
+    for(let k=1;k<pts.length;k++)d+=" L"+pts[k].x+","+pts[k].y;
+    svg+='<path d="'+d+'" fill="none" stroke="#cda35c" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" opacity=".85"/>';
+  }
+  pts.forEach(p=>{
+    const col=LANE_FILL[p.n.dir];
+    svg+='<g class="sc-node-card" onclick="openCard('+p.n.i+')">';
+    svg+='<circle cx="'+p.x+'" cy="'+p.y+'" r="17" fill="'+col+'" stroke="#14100e" stroke-width="2"/>';
+    svg+='<text x="'+p.x+'" y="'+(p.y+6)+'" font-size="16" text-anchor="middle">'+p.n.em+'</text>';
+    svg+='<text class="sc-node-label" x="'+p.x+'" y="'+(p.y+34)+'" font-size="9.5" fill="'+col+'" text-anchor="middle">'+p.n.label+'</text>';
+    svg+='</g>';
+  });
+  svg+='</svg>';
+  document.getElementById("score-graph").innerHTML=svg;
+}
+function setScoreMode(m){
+  scoreMode=m;
+  document.querySelectorAll("#score-mode button").forEach(b=>b.classList.toggle("sel",b.dataset.mode===m));
+  document.getElementById("score-graph-wrap").style.display=m==="graph"?"flex":"none";
+  document.getElementById("score-graph-hint").style.display=m==="graph"?"block":"none";
+  document.getElementById("score-body").style.display=m==="text"?"block":"none";
+}
+document.getElementById("score-mode").addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;setScoreMode(b.dataset.mode);
+});
 document.getElementById("score-segpick").addEventListener("click",e=>{
   const b=e.target.closest("button");if(!b)return;
   scoreAct=+b.dataset.seg;
