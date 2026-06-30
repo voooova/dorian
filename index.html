@@ -88,6 +88,12 @@
   .assoc .verb{margin-top:14px;font-size:1.5rem;font-weight:800;color:var(--gold-soft);letter-spacing:.02em}
   .assoc .cue{color:var(--ink-soft);font-size:1rem;margin-top:10px;font-style:italic}
   .tap{margin-top:auto;text-align:center;color:var(--muted);font-size:.78rem;padding-top:14px}
+  /* адресат: куда говорю */
+  .aud{display:inline-block;margin-top:12px;font-size:.82rem;font-weight:700;padding:6px 12px;border-radius:999px;border:1px solid}
+  .aud.zal{color:#9ad0ea;background:#13242d;border-color:#3f7d96}
+  .aud.sebe{color:#c7a8e0;background:#241a2e;border-color:#6b4f86}
+  .aud.tekst{color:#b8b0a4;background:#221d18;border-color:#5a4d40}
+  .aud.partner{color:#9ad8bb;background:#15241d;border-color:#3f7d63}
 
   .back .txt{font-family:Georgia,serif;font-size:1.32rem;line-height:1.55;color:var(--ink);margin:auto 0}
   .back .txt u{text-decoration:none;border-bottom:2px solid var(--gold)}
@@ -647,6 +653,41 @@ const DEEP=[
  {q:"Что делает Дориан физически в момент «При первом взгляде на портрет»?",a:"Невольно делает шаг НАЗАД — будто испугался, — и тут же вспыхивает от удовольствия. Испуг → восторг."}
 ];
 
+// КУДА ГОВОРЮ (занятие 2 с ЮБ): зал = на публику, отрыв от текста; себе = внутри, не на зал;
+// текст = веду рассказ/наблюдаю; партнёр = реплика в диалоге
+const AUD={
+ "ТЕНЬ":"зал","ОТМАШКА":"партнёр","ВАЖНО":"партнёр","ПОЧЕМУ":"партнёр","БОГАТСТВО":"зал",
+ "НЕ ДУМАЮ":"партнёр","СТАРИК-МОРЩИНЫ":"зал","ПЛЕНЯЕТЕ":"зал","А КРАСОТА…":"зал","ЛУНА":"зал",
+ "КОРОНА-ВЛАСТЬ":"зал","ЩИТ vs МЫСЛЬ":"зал","ГЛУПЦЫ":"зал","БОГИ ДАЮТ-ОТНИМАЮТ":"зал",
+ "ЧАСЫ-МЕСЯЦ":"зал","ТРИ НЕ":"зал","ЖИВИТЕ!":"зал","ГЕДОНИЗМ":"зал","ПОЗНАЙ СЕБЯ":"зал",
+ "ЦВЕТЫ-ЛОМОНОС":"зал","МАРИОНЕТКИ":"зал","МОЛОДОСТЬ!":"зал",
+ "КИСТЬ":"текст","ГОТОВО!":"партнёр","ШЕДЕВР":"партнёр","ОЧНУЛСЯ":"текст","КОНЧЕНО?":"партнёр",
+ "ЗЕРКАЛО":"текст","ОТКРОВЕНИЕ":"текст","ДА → УВЯДАНИЕ":"себе","НОЖ-ЛЁД":"текст",
+ "СВЕТСКИЙ ОБМЕН":"партнёр","ДУШУ БЫ ОТДАЛ":"себе",
+ "ТРЕВОГА":"себе","КЛЮЧ":"текст","ИЗМЕНИЛСЯ":"себе","ВОПРОСЫ":"себе","УЖАС-ВЗГЛЯД":"текст",
+ "НАДЕЖДА-СИБИЛА":"себе","ПОГУБИТЬ ДУШУ":"зал"
+};
+const AUD_LABEL={
+ зал:"🔵 В ЗАЛ · на публику, оторвись от текста",
+ себе:"🟣 СЕБЕ · внутри, не на зал",
+ текст:"⚪ ВЕДУ РАССКАЗ · наблюдаю, вижу картинку",
+ партнёр:"💬 ПАРТНЁРУ · живой диалог"
+};
+// Замечания второго занятия (где особенно про зал/себе)
+const YB2={
+ "ПОЗНАЙ СЕБЯ":"Весь монолог — ДИАЛОГ С ЗАЛОМ. Дориан Грей — это зал: «Вы ещё не знаете о себе ничего, я помогу вам себя увидеть». Главное — «помочь вам познать самого себя».",
+ "А КРАСОТА…":"Сам восхитись («росы бриллиантов»), не бросай как бисер. В паузе — обращение к залу: «ибо не требует понимания» — и кто-то в зале: о да. Вовлекай в диалог.",
+ "ГЛУПЦЫ":"Чуть легче, ироничнее, не назидай. «Не судят по внешности, глупые» — это данность.",
+ "ЖИВИТЕ!":"«Ничего не бойтесь» — главное слово. Искушай: впечатления, ощущения — всех мало.",
+ "ИЗМЕНИЛСЯ":"«Перемена» — посыл в зал, не под нос. «Дориан смотрит и видит изменения» — констатируешь предлагаемые обстоятельства.",
+ "ТРЕВОГА":"Размышляешь сам с собой, кладёшь на чашу весов — не хлопочи, шире, держи паузы. «Ну а если…» — голос ниже, как назло.",
+ "НАДЕЖДА-СИБИЛА":"«Руководить им» — финал мысли, пауза. А ПОТОМ НА ЗАЛ: «как одними руководит добродетель, другими совесть» (мы все разные), «а всеми людьми страх перед Богом» — через улыбку, иронично. Сибилу — выделить (первое появление).",
+ "ПОГУБИТЬ ДУШУ":"С залом, оправдательно («согласитесь, друзья мои»), не как следователь — не осуждай, сострадай. «Это ты, я, он способен погубить душу». От себя не убежишь.",
+ "ДУШУ БЫ ОТДАЛ":"Он говорит это САМ СЕБЕ — это эго, с которым он борется. Но посыл — в последний ряд.",
+ "ДА → УВЯДАНИЕ":"Себе: впервые видишь своё будущее в зеркале портрета.",
+ "КИСТЬ":"Веди киноленту — дай увидеть, как художник кладёт кисть. Не спеши."
+};
+
 // АНАЛИЗ СЦЕНЫ (техника Чехова) — по каждому отрывку
 const SCENES=[
 {act:1,title:"О красоте и молодости",
@@ -739,6 +780,8 @@ document.getElementById("segpick").addEventListener("click",e=>{
 /* ——— КАРТОЧКИ ——— */
 let queue=[],qpos=0,flipped=false;
 const WHO={henry:"Лорд Генри",dorian:"Дориан",bezil:"Бэзил",author:"Автор"};
+function audCls(a){return {"зал":"zal","себе":"sebe","текст":"tekst","партнёр":"partner"}[a]||""}
+function audChip(assoc){const a=AUD[assoc];return a?'<div class="aud '+audCls(a)+'">'+AUD_LABEL[a]+'</div>':""}
 
 function startCards(){
   // порядок: сначала невыученные (box<3), внутри — по порядку текста
@@ -760,10 +803,12 @@ function renderCard(){
   document.getElementById("front").className="face front "+c.who;
   document.getElementById("front").innerHTML=
     '<div class="badge"><span class="dot"></span><span class="who">'+WHO[c.who]+' · отрывок '+rom(c.act)+'</span></div>'+
-    '<div class="assoc"><div class="em">'+c.em+'</div><div class="word">'+c.assoc+'</div>'+(c.verb?'<div class="verb">я '+c.verb.toLowerCase()+'</div>':'')+'<div class="cue">'+c.cue+'</div></div>'+
+    '<div class="assoc"><div class="em">'+c.em+'</div><div class="word">'+c.assoc+'</div>'+(c.verb?'<div class="verb">я '+c.verb.toLowerCase()+'</div>':'')+audChip(c.assoc)+'<div class="cue">'+c.cue+'</div></div>'+
     '<div class="tap">нажми → вспомни текст</div>';
   let lays="";
   if(c.verb)lays+='<div class="lay e"><span class="t">▶ действие</span>я '+c.verb.toLowerCase()+'</div>';
+  if(AUD[c.assoc])lays+='<div class="lay l"><span class="t">'+AUD_LABEL[AUD[c.assoc]].split(" · ")[0]+'</span>'+AUD_LABEL[AUD[c.assoc]].split(" · ")[1]+'</div>';
+  if(YB2[c.assoc])lays+='<div class="lay y"><span class="t">🎓 занятие 2</span>'+YB2[c.assoc]+'</div>';
   if(c.link)lays+='<div class="lay l"><span class="t">↔ связь</span>'+c.link+'</div>';
   if(c.emo)lays+='<div class="lay e"><span class="t">🎭 эмоция</span>'+c.emo+'</div>';
   if(c.yb)lays+='<div class="lay y"><span class="t">🎓 Юлия Б.</span>'+c.yb+'</div>';
@@ -998,6 +1043,7 @@ function renderCloze(){
   document.getElementById("cl-card").innerHTML=
     '<div class="badge '+c.who+'"><span class="dot"></span><span class="who">'+WHO[c.who]+' · отрывок '+rom(c.act)+'</span></div>'+
     (c.verb?'<div class="cl-act">я '+c.verb.toLowerCase()+(c.emo?' — <span>'+c.emo+'</span>':'')+'</div>':'')+
+    audChip(c.assoc)+
     '<div class="cl-text">'+html+'</div>'+
     '<div class="sp-tap">тап по дырке — открыть слово · читай вслух с этим действием</div>';
 }

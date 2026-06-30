@@ -1,10 +1,10 @@
 // Service Worker — офлайн-кэш тренажёра Дориан
-const CACHE = 'dorian-v7';
+const CACHE = 'dorian-v9';
 const ASSETS = [
   './',
   './index.html',
   './uchebnik.html',
-  ''./manifest.webmanifest',
+  './manifest.webmanifest',
   './icon.svg',
   './icon-192.png',
   './icon-512.png'
@@ -24,7 +24,7 @@ self.addEventListener('activate', e => {
   );
 });
 
-// cache-first: всё берём из кэша, сеть — только если в кэше нет
+// cache-first: всё из кэша, сеть — только если в кэше нет
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
